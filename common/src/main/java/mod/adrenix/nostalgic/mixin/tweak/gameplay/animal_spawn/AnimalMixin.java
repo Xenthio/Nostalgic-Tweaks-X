@@ -2,20 +2,18 @@ package mod.adrenix.nostalgic.mixin.tweak.gameplay.animal_spawn;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import mod.adrenix.nostalgic.helper.gameplay.AnimalSpawnHelper;
 import mod.adrenix.nostalgic.tweak.config.GameplayTweak;
 import mod.adrenix.nostalgic.util.common.ClassUtil;
 import mod.adrenix.nostalgic.util.common.data.FlagHolder;
-import mod.adrenix.nostalgic.util.common.world.LevelUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.Saddleable;
-import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Animal.class)
 public abstract class AnimalMixin extends Mob
@@ -53,6 +51,12 @@ public abstract class AnimalMixin extends Mob
     )
     private boolean nt_animal_spawn$modifyRemoveWhenFarAway(boolean removeWhenFarAway)
     {
+        if (!GameplayTweak.OLD_ANIMAL_SPAWNING.get() || !AnimalSpawnHelper.isInList(this.getType()))
+            return removeWhenFarAway;
+
+        if (GameplayTweak.KEEP_BABY_ANIMAL_WHILE_OLD_SPAWN.get() && this.isPersistenceRequired())
+            return removeWhenFarAway;
+
         FlagHolder leashed = FlagHolder.off();
         FlagHolder saddled = FlagHolder.off();
         FlagHolder tamed = FlagHolder.off();
@@ -68,29 +72,23 @@ public abstract class AnimalMixin extends Mob
                 tamed.enable();
         });
 
-        if (GameplayTweak.OLD_ANIMAL_SPAWNING.get() && !leashed.get() && !saddled.get() && !tamed.get())
+        if (!leashed.get() && !saddled.get() && !tamed.get())
             return true;
 
         return removeWhenFarAway;
     }
 
     /**
-     * Only allows passive animals to spawn in bright areas.
+     * Set the baby animal persistence flag to {@code true} so the animal can't be removed when its current chunk
+     * unloads.
      */
-    @ModifyReturnValue(
-        method = "isBrightEnoughToSpawn",
-        at = @At("RETURN")
+    @Inject(
+        method = "finalizeSpawnChildFromBreeding",
+        at = @At("HEAD")
     )
-    private static boolean nt_animal_spawn$modifyIsBrightEnoughToSpawn(boolean isBrightEnoughToSpawn, BlockAndTintGetter lightGetter, BlockPos blockPos)
+    private void nt_animal_spawn$onFinalizeSpawnChildFromBreeding(ServerLevel level, Animal animal, AgeableMob baby, CallbackInfo callback)
     {
-        if (!GameplayTweak.OLD_ANIMAL_SPAWNING.get())
-            return isBrightEnoughToSpawn;
-
-        Level level = LevelUtil.getOverworld();
-
-        if (level == null)
-            return isBrightEnoughToSpawn;
-
-        return level.getMaxLocalRawBrightness(blockPos) > 8;
+        if (GameplayTweak.KEEP_BABY_ANIMAL_WHILE_OLD_SPAWN.get() && AnimalSpawnHelper.isInList(baby.getType()))
+            baby.setPersistenceRequired();
     }
 }

@@ -252,6 +252,9 @@ public class TextWidget extends DynamicWidget<TextBuilder, TextWidget>
     {
         if (this.getBuilder().highlighter == null)
         {
+            if (this.getBuilder().hoverColor != null && this.isHoveredOrFocused())
+                return this.getBuilder().hoverColor;
+
             if (this.getBuilder().onPress != null && this.isHoveredOrFocused())
                 return this.getBuilder().clickableColor;
 
@@ -288,6 +291,14 @@ public class TextWidget extends DynamicWidget<TextBuilder, TextWidget>
      */
     private float getCenteredLine(MultiLineText.Line line, int index)
     {
+        if (this.getBuilder().isCenterVertical)
+        {
+            if (this.iconManager.isPresent())
+                return Math.round(this.getIconWidth() / this.getSquareScale());
+            else
+                return 0.0F;
+        }
+
         int lineWidth = line.getWidth();
 
         if (index == 0 && this.iconManager.isPresent())
@@ -464,7 +475,7 @@ public class TextWidget extends DynamicWidget<TextBuilder, TextWidget>
 
         RenderUtil.beginBatching();
 
-        if (this.getBuilder().backgroundColor != null)
+        if (this.getBuilder().backgroundColor != null && this.getBuilder().backgroundIf.getAsBoolean())
             RenderUtil.fill(graphics, this.getX(), this.getY(), this.getEndX(), this.getEndY(), this.getBuilder().backgroundColor);
 
         this.renderText(graphics, mouseX, mouseY, partialTick, false);

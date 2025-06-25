@@ -49,6 +49,7 @@ public class ClientConfig implements ConfigMeta
 
         public StringSet favoriteTweaks = ModTweak.FAVORITE_TWEAKS.register("favoriteTweaks");
         public boolean openedConfigScreen = ModTweak.OPENED_CONFIG_SCREEN.register("openedConfigScreen");
+        public boolean openedSodiumScreen = ModTweak.OPENED_SODIUM_SCREEN.register("openedSodiumScreen");
         public boolean openedSupporterScreen = ModTweak.OPENED_SUPPORTER_SCREEN.register("openedSupporterScreen");
         public boolean persistentConfigScreen = ModTweak.PERSISTENT_CONFIG_SCREEN.register("persistentConfigScreen");
 
@@ -146,6 +147,7 @@ public class ClientConfig implements ConfigMeta
 
         public boolean disableGrowth = SoundTweak.DISABLE_GROWTH.register("disableGrowth");
         public boolean disableDoorPlace = SoundTweak.DISABLE_DOOR_PLACE.register("disableDoorPlace");
+        public boolean disableBubbleColumn = SoundTweak.DISABLE_BUBBLE_COLUMN.register("disableBubbleColumn");
 
         // Damage
 
@@ -194,6 +196,7 @@ public class ClientConfig implements ConfigMeta
         public ItemSet fullBlockOutlines = CandyTweak.FULL_BLOCK_OUTLINES.register("fullBlockOutlines");
         public String blockOutlineColor = CandyTweak.BLOCK_OUTLINE_COLOR.register("blockOutlineColor");
         public float blockOutlineThickness = CandyTweak.BLOCK_OUTLINE_THICKNESS.register("blockOutlineThickness");
+        public boolean disableHitboxOverride = CandyTweak.DISABLE_HITBOX_OVERRIDE.register("disableHitboxOverride");
 
         // Hitbox Overlay
 
@@ -230,10 +233,21 @@ public class ClientConfig implements ConfigMeta
 
         public boolean hidePlayerInBed = CandyTweak.HIDE_PLAYER_IN_BED.register("hidePlayerInBed");
 
+        // Heads-up Toasts
+
+        public boolean hideRecipeToasts = CandyTweak.HIDE_RECIPE_TOASTS.register("hideRecipeToasts");
+        public boolean hideTutorialToasts = CandyTweak.HIDE_TUTORIAL_TOASTS.register("hideTutorialToasts");
+        public boolean hideAdvancementToasts = CandyTweak.HIDE_ADVANCEMENT_TOASTS.register("hideAdvancementToasts");
+        public boolean hideAdvancementChats = CandyTweak.HIDE_ADVANCEMENT_CHATS.register("hideAdvancementChats");
+
         // Heads-up Display
 
         public boolean hideExperienceBar = CandyTweak.HIDE_EXPERIENCE_BAR.register("hideExperienceBar");
         public boolean hideHungerBar = CandyTweak.HIDE_HUNGER_BAR.register("hideHungerBar");
+        public boolean hideStaminaBar = CandyTweak.HIDE_STAMINA_BAR.register("hideStaminaBar");
+        public boolean hideStaminaMoving = CandyTweak.HIDE_STAMINA_BAR_MOVING.register("hideStaminaMoving");
+        public boolean hideStaminaCooldown = CandyTweak.HIDE_STAMINA_BAR_COOLDOWN.register("hideStaminaCooldown");
+        public boolean hideStaminaBarInactive = CandyTweak.HIDE_STAMINA_BAR_INACTIVE.register("hideStaminaBarInactive");
 
         // Offhand Slot
 
@@ -281,6 +295,17 @@ public class ClientConfig implements ConfigMeta
         public int altHungerSaturationOffsetY = CandyTweak.ALT_HUNGER_SATURATION_OFFSET_Y.register("altHungerSaturationOffsetY");
         public boolean altHungerSaturationShadow = CandyTweak.ALT_HUNGER_SATURATION_SHADOW.register("altHungerSaturationShadow");
         public String altHungerSaturationText = CandyTweak.ALT_HUNGER_SATURATION_TEXT.register("altHungerSaturationText");
+
+        // Alternative Stamina Text
+
+        public boolean showStaminaText = CandyTweak.SHOW_STAMINA_TEXT.register("showStaminaText");
+        public boolean useDynamicStaminaColor = CandyTweak.USE_DYNAMIC_STAMINA_COLOR.register("useDynamicStaminaColor");
+        public boolean altStaminaShowOnActive = CandyTweak.ALT_STAMINA_SHOW_ON_ACTIVE.register("altStaminaShowOnActive");
+        public Corner altStaminaCorner = CandyTweak.ALT_STAMINA_CORNER.register("altStaminaCorner");
+        public int altStaminaOffsetX = CandyTweak.ALT_STAMINA_OFFSET_X.register("altStaminaOffsetX");
+        public int altStaminaOffsetY = CandyTweak.ALT_STAMINA_OFFSET_Y.register("altStaminaOffsetY");
+        public boolean altStaminaShadow = CandyTweak.ALT_STAMINA_SHADOW.register("altStaminaShadow");
+        public String altStaminaText = CandyTweak.ALT_STAMINA_TEXT.register("altStaminaText");
 
         // Game Version Overlay
 
@@ -346,6 +371,7 @@ public class ClientConfig implements ConfigMeta
 
         // Generic Screen
 
+        public boolean fixSavingIndicatorOffset = CandyTweak.FIX_SAVING_INDICATOR_OFFSET.register("fixSavingIndicatorOffset");
         public boolean removeScreenBlur = CandyTweak.REMOVE_SCREEN_BLUR.register("removeScreenBlur");
         public boolean oldButtonTextColor = CandyTweak.OLD_BUTTON_TEXT_COLOR.register("oldButtonTextColor");
         public boolean oldDirtScreenBackground = CandyTweak.OLD_DIRT_SCREEN_BACKGROUND.register("oldDirtScreenBackground");
@@ -405,6 +431,7 @@ public class ClientConfig implements ConfigMeta
         // World Select Screen
 
         public Generic oldWorldSelectScreen = CandyTweak.OLD_WORLD_SELECT_SCREEN.register("oldWorldSelectScreen");
+        public boolean levelSelectWhenEmpty = CandyTweak.LEVEL_SELECT_WHEN_EMPTY.register("levelSelectWhenEmpty");
         public boolean addWorldThumbnail = CandyTweak.ADD_WORLD_THUMBNAIL.register("addWorldThumbnail");
         public boolean addWorldMetadata = CandyTweak.ADD_WORLD_METADATA.register("addWorldMetadata");
         public boolean ignoreWorldSize = CandyTweak.IGNORE_WORLD_SIZE.register("ignoreWorldSize");
@@ -425,6 +452,10 @@ public class ClientConfig implements ConfigMeta
         // Title Screen Logo
 
         public boolean oldAlphaLogo = CandyTweak.OLD_ALPHA_LOGO.register("oldAlphaLogo");
+        public boolean useCustomFallingLogo = CandyTweak.USE_CUSTOM_FALLING_LOGO.register("useCustomFallingLogo");
+        public Object fallingLogoEditor = CandyTweak.FALLING_LOGO_EDITOR.register("fallingLogoEditor");
+        public int splashOffsetX = CandyTweak.SPLASH_OFFSET_X.register("splashOffsetX");
+        public int splashOffsetY = CandyTweak.SPLASH_OFFSET_Y.register("splashOffsetY");
 
         // Title Screen Buttons
 
@@ -477,6 +508,7 @@ public class ClientConfig implements ConfigMeta
 
         public boolean old2dItems = CandyTweak.OLD_2D_ITEMS.register("old2dItems");
         public boolean old2dRendering = CandyTweak.OLD_2D_RENDERING.register("old2dRendering");
+        public ItemSet old2dExceptions = CandyTweak.OLD_2D_EXCEPTIONS.register("old2dExceptions");
         public boolean disableEnchantedGroundItems = CandyTweak.DISABLE_ENCHANTED_GROUND_ITEMS.register("disableEnchantedGroundItems");
         public boolean disableEnchantedStaticItems = CandyTweak.DISABLE_ENCHANTED_STATIC_ITEMS.register("disableEnchantedStaticItems");
 
@@ -502,15 +534,17 @@ public class ClientConfig implements ConfigMeta
         // Light Engine
 
         public boolean roundRobinRelight = CandyTweak.ROUND_ROBIN_RELIGHT.register("roundRobinRelight");
-        public boolean oldSmoothLighting = CandyTweak.OLD_SMOOTH_LIGHTING.register("oldSmoothLighting");
         public boolean oldNetherLighting = CandyTweak.OLD_NETHER_LIGHTING.register("oldNetherLighting");
+        public boolean oldSmoothLighting = CandyTweak.OLD_SMOOTH_LIGHTING.register("oldSmoothLighting");
+        public boolean disableSmoothLighting = CandyTweak.DISABLE_SMOOTH_LIGHTING.register("disableSmoothLighting");
         public boolean oldClassicEngine = CandyTweak.OLD_CLASSIC_ENGINE.register("oldClassicEngine");
         public boolean disableSmoothLighting = CandyTweak.DISABLE_SMOOTH_LIGHTING.register("disableSmoothLighting");
 
         // Lightmap Texture
 
         public boolean smoothLightTransition = CandyTweak.SMOOTH_LIGHT_TRANSITION.register("smoothLightTransition");
-        public boolean disableBrightness = CandyTweak.DISABLE_BRIGHTNESS.register("disableBrightness");
+        public boolean dynamicLightBrightness = CandyTweak.DYNAMIC_LIGHT_BRIGHTNESS.register("dynamicLightBrightness");
+        public boolean disableLightBrightness = CandyTweak.DISABLE_LIGHT_BRIGHTNESS.register("disableLightBrightness");
         public boolean oldLightColor = CandyTweak.OLD_LIGHT_COLOR.register("oldLightColor");
 
         // Shader Support
@@ -652,6 +686,8 @@ public class ClientConfig implements ConfigMeta
 
         public boolean disableAnimalPanic = GameplayTweak.DISABLE_ANIMAL_PANIC.register("disableAnimalPanic");
         public boolean disableMonsterAvoidSun = GameplayTweak.DISABLE_MONSTER_AVOID_SUN.register("disableMonsterAvoidSun");
+        public boolean disableSkeletonStrafing = GameplayTweak.DISABLE_SKELETON_STRAFING.register("disableSkeletonStrafing");
+        public boolean oldCreeperStrafeOnSwell = GameplayTweak.OLD_CREEPER_STRAFE_ON_SWELL.register("oldCreeperStrafeOnSwell");
 
         // Monsters
 
@@ -670,10 +706,12 @@ public class ClientConfig implements ConfigMeta
         // Animal Spawning
 
         public int animalSpawnCap = GameplayTweak.ANIMAL_SPAWN_CAP.register("animalSpawnCap");
+        public StringSet oldAnimalSpawnList = GameplayTweak.OLD_ANIMAL_SPAWN_LIST.register("oldAnimalSpawnList");
         public boolean oldAnimalSpawning = GameplayTweak.OLD_ANIMAL_SPAWNING.register("oldAnimalSpawning");
         public boolean disableBabyAnimalSpawning = GameplayTweak.DISABLE_BABY_ANIMAL_SPAWNING.register("disableBabyAnimalSpawning");
         public boolean disableAnimalBreeding = GameplayTweak.DISABLE_ANIMAL_BREEDING.register("disableAnimalBreeding");
         public boolean disableAnimalTempting = GameplayTweak.DISABLE_ANIMAL_TEMPTING.register("disableAnimalTempting");
+        public boolean keepBabyAnimalWhileOldSpawn = GameplayTweak.KEEP_BABY_ANIMAL_WHILE_OLD_SPAWN.register("keepBabyAnimalWhileOldSpawn");
 
         // Sheep
 
@@ -728,11 +766,26 @@ public class ClientConfig implements ConfigMeta
 
         public boolean disableOrbSpawn = GameplayTweak.DISABLE_ORB_SPAWN.register("disableOrbSpawn");
         public boolean disableOrbRendering = GameplayTweak.DISABLE_ORB_RENDERING.register("disableOrbRendering");
+        public boolean immediateExperiencePickup = GameplayTweak.IMMEDIATE_EXPERIENCE_PICKUP.register("immediateExperiencePickup");
 
         // Experience Blocks
 
         public boolean disableAnvil = GameplayTweak.DISABLE_ANVIL.register("disableAnvil");
         public boolean disableEnchantTable = GameplayTweak.DISABLE_ENCHANT_TABLE.register("disableEnchantTable");
+
+        // Stamina Mechanics
+
+        public boolean staminaSprint = GameplayTweak.STAMINA_SPRINT.register("staminaSprint");
+        public boolean staminaInfinitePeaceful = GameplayTweak.STAMINA_INFINITE_PEACEFUL.register("staminaInfinitePeaceful");
+        public StaminaRegain staminaRegainWhenMoving = GameplayTweak.STAMINA_REGAIN_WHEN_MOVING.register("staminaRegainWhenMoving");
+        public int staminaDuration = GameplayTweak.STAMINA_DURATION.register("staminaDuration");
+        public int staminaRecharge = GameplayTweak.STAMINA_RECHARGE.register("staminaRecharge");
+        public int staminaCooldown = GameplayTweak.STAMINA_COOLDOWN.register("staminaCooldown");
+
+        // Stamina Effects
+
+        public boolean staminaSaturationEffect = GameplayTweak.STAMINA_SATURATION_EFFECT.register("staminaSaturationEffect");
+        public boolean staminaHungerEffect = GameplayTweak.STAMINA_HUNGER_EFFECT.register("staminaHungerEffect");
 
         // Player Mechanics
 
@@ -741,6 +794,12 @@ public class ClientConfig implements ConfigMeta
         public boolean leftClickDoor = GameplayTweak.LEFT_CLICK_DOOR.register("leftClickDoor");
         public boolean leftClickLever = GameplayTweak.LEFT_CLICK_LEVER.register("leftClickLever");
         public boolean leftClickButton = GameplayTweak.LEFT_CLICK_BUTTON.register("leftClickButton");
+
+        // Fishing Mechanics
+
+        public boolean oldFishingLoot = GameplayTweak.OLD_FISHING_LOOT.register("oldFishingLoot");
+        public boolean oldFishingLuring = GameplayTweak.OLD_FISHING_LURING.register("oldFishingLuring");
+        public boolean oldFishingCasting = GameplayTweak.OLD_FISHING_CASTING.register("oldFishingCasting");
 
         // Farming Mechanics
 
@@ -771,9 +830,15 @@ public class ClientConfig implements ConfigMeta
 
         // Block Mechanics
 
+        public ItemSet selfBlockDrops = GameplayTweak.SELF_BLOCK_DROPS.register("selfBlockDrops");
         public boolean punchTntIgnition = GameplayTweak.PUNCH_TNT_IGNITION.register("punchTntIgnition");
         public boolean disableBedBounce = GameplayTweak.DISABLE_BED_BOUNCE.register("disableBedBounce");
         public boolean alwaysOpenChest = GameplayTweak.ALWAYS_OPEN_CHEST.register("alwaysOpenChest");
+
+        // Tool Mechanics
+
+        public boolean disableShovelPathing = GameplayTweak.DISABLE_SHOVEL_PATHING.register("disableShovelPathing");
+        public boolean disableAxeStripping = GameplayTweak.DISABLE_AXE_STRIPPING.register("disableAxeStripping");
 
         // Food
 
@@ -813,6 +878,8 @@ public class ClientConfig implements ConfigMeta
         public boolean oldZombieArms = AnimationTweak.OLD_ZOMBIE_ARMS.register("oldZombieArms");
         public boolean oldSkeletonArms = AnimationTweak.OLD_SKELETON_ARMS.register("oldSkeletonArms");
         public boolean oldGhastCharging = AnimationTweak.OLD_GHAST_CHARGING.register("oldGhastCharging");
+        public boolean oldMobDeathTopple = AnimationTweak.OLD_MOB_DEATH_TOPPLE.register("oldMobDeathTopple");
+        public boolean oldMobHeadBodyTurn = AnimationTweak.OLD_MOB_HEAD_BODY_TURN.register("oldMobHeadBodyTurn");
 
         // Boat
 

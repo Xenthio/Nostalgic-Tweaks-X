@@ -124,6 +124,25 @@ public class GroupRow extends ConfigRow<GroupRowMaker, GroupRow>
     }
 
     /**
+     * To get only the rows associated with this group, use {@link #getChildren()}.
+     *
+     * @return A linked hash set of all the rows that are subscribed to this group row <b>and</b> its children.
+     */
+    public LinkedHashSet<ConfigRow<?, ?>> getDeepChildren()
+    {
+        LinkedHashSet<ConfigRow<?, ?>> allChildren = new LinkedHashSet<>(this.children);
+
+        if (!this.children.isEmpty())
+        {
+            CollectionUtil.fromCast(this.children, GroupRow.class)
+                .map(GroupRow::getDeepChildren)
+                .forEach(allChildren::addAll);
+        }
+
+        return allChildren;
+    }
+
+    /**
      * @return Whether this group row is currently collapsed.
      */
     public boolean isCollapsed()
@@ -190,13 +209,7 @@ public class GroupRow extends ConfigRow<GroupRowMaker, GroupRow>
      */
     private void addGroupRow(Container group)
     {
-        boolean isGroupAbsent = group.getChildren()
-            .stream()
-            .allMatch(child -> child.getTweaks().stream().noneMatch(RowProvider.get()::test));
-
-        boolean isTweakAbsent = group.getTweaks().stream().noneMatch(RowProvider.get()::test);
-
-        if (isTweakAbsent && isGroupAbsent)
+        if (group.getDeepTweaks().stream().noneMatch(RowProvider.get()::test))
             return;
 
         this.addRow(create(group, this).build());

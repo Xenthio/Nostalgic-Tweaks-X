@@ -15,6 +15,7 @@ import mod.adrenix.nostalgic.util.client.timer.ClientTimer;
 import mod.adrenix.nostalgic.util.common.annotation.PublicAPI;
 import mod.adrenix.nostalgic.util.common.color.Color;
 import mod.adrenix.nostalgic.util.common.data.CacheValue;
+import mod.adrenix.nostalgic.util.common.data.FlagHolder;
 import mod.adrenix.nostalgic.util.common.data.NullableHolder;
 import mod.adrenix.nostalgic.util.common.math.MathUtil;
 import mod.adrenix.nostalgic.util.common.timer.SimpleTimer;
@@ -36,6 +37,7 @@ public abstract class AbstractButton<Builder extends AbstractButtonMaker<Builder
     protected final CacheValue<Component> cacheTitle;
     protected final IconManager<Button> iconManager;
     protected final Consumer<Button> onPress;
+    protected boolean scrollingText;
     protected boolean shrunk;
     protected boolean holding;
     protected int textX = 0;
@@ -248,12 +250,79 @@ public abstract class AbstractButton<Builder extends AbstractButtonMaker<Builder
     }
 
     /**
+     * @return Whether the button text is currently being scrolled due to width overflow.
+     */
+    @PublicAPI
+    public boolean isScrollingText()
+    {
+        return this.scrollingText;
+    }
+
+    /**
      * Manually perform an on-press action.
      */
     @PublicAPI
     public void onPress()
     {
+        if (this.holding)
+            return;
+
+        if (this.getBuilder().holdTimer != null)
+        {
+            FlagHolder isFocused = new FlagHolder(this.isFocused());
+
+            if (this.canFocus())
+                this.setFocused();
+
+            this.holding = true;
+
+            ClientTimer.getInstance().run(this.getBuilder().holdTimer, () -> {
+                this.holding = false;
+
+                if (this.getBuilder().useClickSound)
+                    GuiUtil.playClick();
+
+                if (this.isFocused() && !isFocused.get())
+                    this.setUnfocused();
+
+                this.onPress.accept(this.self());
+            });
+
+            return;
+        }
+
+        if (this.getBuilder().useClickSound)
+            GuiUtil.playClick();
+
         this.onPress.accept(this.self());
+    }
+
+    /**
+     * Run the button's {@code onPress} instructions if the button is active and visible.
+     *
+     * @param withSound Whether to play the click sound before the action is performed.
+     */
+    @PublicAPI
+    public void runIfPossible(boolean withSound)
+    {
+        if (this.isInactive() || this.isInvisible())
+            return;
+
+        boolean useClickSound = this.getBuilder().useClickSound;
+        this.getBuilder().useClickSound = withSound;
+
+        this.onPress();
+
+        this.getBuilder().useClickSound = useClickSound;
+    }
+
+    /**
+     * Run the button's {@code onPress} instructions if the button is active and visible.
+     */
+    @PublicAPI
+    public void runIfPossible()
+    {
+        this.runIfPossible(this.getBuilder().useClickSound);
     }
 
     /**
@@ -267,22 +336,7 @@ public abstract class AbstractButton<Builder extends AbstractButtonMaker<Builder
 
         if (this.isValidClick(mouseX, mouseY, button))
         {
-            if (this.getBuilder().holdTimer != null)
-            {
-                ClientTimer.getInstance().run(this.getBuilder().holdTimer, () -> {
-                    if (this.getBuilder().useClickSound)
-                        GuiUtil.playClick();
-
-                    this.onPress.accept(this.self());
-                });
-
-                return true;
-            }
-
-            if (this.getBuilder().useClickSound)
-                GuiUtil.playClick();
-
-            this.onPress.accept(this.self());
+            this.onPress();
 
             return true;
         }
@@ -296,18 +350,16 @@ public abstract class AbstractButton<Builder extends AbstractButtonMaker<Builder
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button)
     {
-        if (this.isInactive() || this.isInvisible())
+        boolean isValidClick = this.isValidClick(mouseX, mouseY, button);
+
+        if (this.holding || this.isInactive() || this.isInvisible())
         {
+            this.holding = false;
+
             if (this.getBuilder().holdTimer != null)
                 ClientTimer.getInstance().cancel(this.getBuilder().holdTimer);
 
-            return false;
-        }
-
-        if (this.isValidClick(mouseX, mouseY, button) && this.getBuilder().holdTimer != null)
-        {
-            ClientTimer.getInstance().cancel(this.getBuilder().holdTimer);
-            return true;
+            return isValidClick;
         }
 
         return super.mouseReleased(mouseX, mouseY, button);
@@ -327,24 +379,7 @@ public abstract class AbstractButton<Builder extends AbstractButtonMaker<Builder
 
         if (KeyboardUtil.isEnterLike(keyCode))
         {
-            if (this.getBuilder().holdTimer != null)
-            {
-                this.holding = true;
-
-                ClientTimer.getInstance().run(this.getBuilder().holdTimer, () -> {
-                    if (this.getBuilder().useClickSound)
-                        GuiUtil.playClick();
-
-                    this.onPress.accept(this.self());
-                });
-
-                return true;
-            }
-
-            if (this.getBuilder().useClickSound)
-                GuiUtil.playClick();
-
-            this.onPress.accept(this.self());
+            this.onPress();
 
             return true;
         }
@@ -358,22 +393,16 @@ public abstract class AbstractButton<Builder extends AbstractButtonMaker<Builder
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers)
     {
-        if (this.isInactive() || this.isInvisible() || this.isUnfocused())
+        if (this.holding || this.isInactive() || this.isInvisible() || this.isUnfocused())
         {
+            boolean wasHolding = this.holding;
+
             this.holding = false;
 
             if (this.getBuilder().holdTimer != null)
                 ClientTimer.getInstance().cancel(this.getBuilder().holdTimer);
 
-            return false;
-        }
-
-        if (KeyboardUtil.isEnterLike(keyCode) && this.getBuilder().holdTimer != null)
-        {
-            ClientTimer.getInstance().cancel(this.getBuilder().holdTimer);
-
-            this.holding = false;
-            return true;
+            return wasHolding;
         }
 
         return super.keyReleased(keyCode, scanCode, modifiers);
@@ -393,16 +422,18 @@ public abstract class AbstractButton<Builder extends AbstractButtonMaker<Builder
         this.iconManager.pushCache();
 
         boolean isDefaultBackground = this.builder.backgroundRenderer == null;
+
         int margin = isDefaultBackground ? 3 : 0;
         int endX = this.getEndX() - margin;
         int startX = this.iconManager.isEmpty() ? this.getX() + margin : this.textX;
         int textWidth = GuiUtil.font().width(this.getTitle()) + margin;
-        boolean isScrolling = startX + GuiUtil.font().width(this.getTitle()) > endX;
+
+        this.scrollingText = startX + GuiUtil.font().width(this.getTitle()) > endX;
 
         if (this.builder.renderer != null)
-            isScrolling = false;
+            this.scrollingText = false;
 
-        if (isScrolling)
+        if (this.scrollingText)
         {
             startX = isDefaultBackground ? this.x + 2 + margin : this.iconX;
             endX -= isDefaultBackground ? 3 : 0;
@@ -416,7 +447,7 @@ public abstract class AbstractButton<Builder extends AbstractButtonMaker<Builder
 
         if (this.iconManager.isPresent())
         {
-            if (!isScrolling)
+            if (!this.scrollingText)
                 this.iconManager.get().pos(this.iconX, this.iconY);
 
             this.iconManager.get().render(graphics, mouseX, mouseY, partialTick);
@@ -427,13 +458,13 @@ public abstract class AbstractButton<Builder extends AbstractButtonMaker<Builder
         if (this.scrollAnimator.isMoving())
             this.scrollTimer.reset();
 
-        if (isScrolling && this.scrollTimer.hasElapsed() && this.scrollAnimator.isFinished())
+        if (this.scrollingText && this.scrollTimer.hasElapsed() && this.scrollAnimator.isFinished())
         {
             this.scrollAnimator.setDuration(40L * extraWidth, TimeUnit.MILLISECONDS);
             this.scrollAnimator.playOrRewind();
         }
 
-        if (this.iconManager.isEmpty() && !isScrolling)
+        if (this.iconManager.isEmpty() && !this.scrollingText)
         {
             DrawText.begin(graphics, this.getTitle())
                 .pos(this.textX, this.textY)
@@ -443,7 +474,7 @@ public abstract class AbstractButton<Builder extends AbstractButtonMaker<Builder
         }
         else
         {
-            if (isScrolling)
+            if (this.scrollingText)
             {
                 final int scissorX = startX;
                 final int scissorEndX = endX;

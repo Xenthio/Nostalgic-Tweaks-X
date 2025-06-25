@@ -52,10 +52,10 @@ public class ColorPicker
         this.transparent = transparent;
         this.resetColor = new Color(color.get(), color.getFloatAlpha());
 
-        this.overlay = Overlay.create(Lang.Picker.TITLE)
+        this.overlay = Overlay.create(Lang.Colorize.TITLE)
             .resizeForWidgets()
-            .infoMessage(Lang.Picker.HINT)
-            .icon(Icons.COLOR_WHEEL)
+            .infoMessage(Lang.Colorize.HINT)
+            .icon(Icons.SMALL_COLOR_WHEEL)
             .padding(PADDING)
             .onClose(() -> this.onClose.accept(this))
             .build();
@@ -139,6 +139,17 @@ public class ColorPicker
     public static Builder create(Color color, Consumer<ColorPicker> onClose)
     {
         return new Builder(color, onClose);
+    }
+
+    /**
+     * Start the process of building a new {@link ColorPicker} overlay.
+     *
+     * @param color The {@link Color} instance this overlay will manage.
+     * @return A new {@link ColorPicker.Builder} instance.
+     */
+    public static Builder create(Color color)
+    {
+        return new Builder(color, picker -> { });
     }
 
     public static class Builder

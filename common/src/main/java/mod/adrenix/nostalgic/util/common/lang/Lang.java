@@ -3,6 +3,7 @@ package mod.adrenix.nostalgic.util.common.lang;
 import mod.adrenix.nostalgic.util.common.annotation.PublicAPI;
 import net.minecraft.network.chat.Component;
 
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public interface Lang
@@ -126,6 +127,18 @@ public interface Lang
         Translation CYCLE_PANORAMA_INFO = from("cycle_panorama_info");
         Translation NEXT_PANORAMA = from("next_panorama");
         Translation NEXT_PANORAMA_INFO = from("next_panorama_info");
+        Translation WARNING_OVERLAY = from("warning_overlay");
+        Translation WARNING_BANNER = from("warning_banner");
+        Translation WARNING_BANNER_CLICK = from("warning_banner_click");
+        Translation SODIUM_TITLE = from("sodium_title");
+        Translation SODIUM_CLOUDS_TITLE = from("sodium_clouds_title");
+        Translation SODIUM_CLOUDS_INFO = from("sodium_clouds_info");
+        Translation SODIUM_CLOUDS_OVERRIDE = from("sodium_clouds_override");
+        Translation SODIUM_CLOUDS_RESTART = from("sodium_clouds_restart");
+        Translation SODIUM_OPEN_PROPERTIES = from("sodium_open_properties");
+        Translation SODIUM_COPY_CLOUDS = from("sodium_copy_clouds");
+        Translation SODIUM_MISSING_FILE_HEADER = from("sodium_missing_file_header");
+        Translation SODIUM_MISSING_FILE_BODY = from("sodium_missing_file_body");
 
         private static Translation from(String name)
         {
@@ -309,6 +322,7 @@ public interface Lang
     interface Slider
     {
         Translation CAP = from("cap");
+        Translation SCALE = from("scale");
         Translation STACK = from("stack");
         Translation LIMIT = from("limit");
         Translation FILES = from("files");
@@ -343,6 +357,7 @@ public interface Lang
         Translation DOWNLOAD = from("download");
         Translation RECONNECT = from("reconnect");
         Translation SUGGESTIONS = from("suggestions");
+        Translation OPEN_EDITOR = from("open_editor");
         Translation MENU_OPTIONS = from("menu_options");
         Translation IMPORT_AND_EXPORT = from("import_and_export");
         Translation SERVER_OPERATIONS = from("server_operations");
@@ -366,10 +381,11 @@ public interface Lang
         Translation DISABLE_ALL = from("disable_all");
         Translation DELETE_ALL = from("delete_all");
         Translation ENABLE_ALL = from("enable_all");
+        Translation FILTER_ALL = from("filter_all");
+        Translation SHOW_ALL = from("show_all");
         Translation EDIT_LIST = from("edit_list");
         Translation VIEW_LIST = from("view_list");
         Translation FAVORITE = from("favorite");
-        Translation OVERRIDE = from("override");
         Translation NETWORK = from("network");
         Translation INSPECT = from("inspect");
         Translation REFRESH = from("refresh");
@@ -407,10 +423,16 @@ public interface Lang
         Translation QUICK = from("quick");
         Translation MANAGE = from("manage");
         Translation FILTER = from("filter");
+        Translation FILTER_SEARCH = from("filter_search");
+        Translation FILTER_SEARCH_INFO = from("filter_search_info");
         Translation MANAGE_LISTING = from("manage_listing");
         Translation HOME_INIT = from("home_init");
         Translation HOME_DEBUG = from("home_debug");
+        Translation HOME_SODIUM = from("home_sodium");
+        Translation HOME_WARNING = from("home_warning");
         Translation HOME_SUPPORTERS = from("home_supporters");
+        Translation SODIUM_PROPERTIES = from("sodium_properties");
+        Translation SODIUM_COPY_PROPERTY = from("sodium_copy_property");
         Translation FILTER_DISABLED = from("filter_disabled");
         Translation FAVORITE_DISABLED = from("favorite_disabled");
         Translation FAVORITE = from("favorite");
@@ -447,8 +469,6 @@ public interface Lang
         Translation DELETE_ALL_PRESETS = from("delete_all_presets");
         Translation CREATE_PRESET = from("create_preset");
         Translation OPEN_DISCORD = from("open_discord");
-        Translation SEARCHING = from("searching");
-        Translation EVERYWHERE = from("everywhere");
         Translation KEYBOARD_SHORTCUT = from("keyboard_shortcut");
 
         private static Translation from(String name)
@@ -458,11 +478,128 @@ public interface Lang
     }
 
     /**
+     * Lang keys that are used by the falling block logo editor.
+     */
+    interface Logo
+    {
+        Translation READ_ERROR = logo("read_error");
+        Translation READ_ERROR_INFO = logo("read_error_info");
+        Translation RESET_CONFIG = logo("reset_config");
+        Translation QUIT_DISCARD = logo("quit_discard");
+        Translation UP = logo("up");
+        Translation UP_TOOLTIP = logo("up.tooltip");
+        Translation DOWN = logo("down");
+        Translation DOWN_TOOLTIP = logo("down.tooltip");
+        Translation PLAY = logo("play");
+        Translation PLAY_TOOLTIP = logo("play.tooltip");
+        Translation UNDO = logo("undo");
+        Translation UNDO_TOOLTIP = logo("undo.tooltip");
+        Translation REDO = logo("redo");
+        Translation REDO_TOOLTIP = logo("redo.tooltip");
+        Translation HELP = logo("help");
+        Translation HELP_TOOLTIP = logo("help.tooltip");
+        Translation HELP_UNDERLINE = logo("help.underline");
+        Translation SELECT_BLOCK = logo("select_block");
+        Translation BLOCK = logo("block");
+        Translation BLOCK_TOOLTIP = logo("block.tooltip");
+        Translation BLOCK_UNDERLINE = logo("block.underline");
+        Translation SHADOW = logo("shadow");
+        Translation SOUND_ON = logo("sound.on");
+        Translation SOUND_OFF = logo("sound.off");
+        Translation SOUND_ON_UNDERLINE = logo("sound.on.underline");
+        Translation SOUND_OFF_UNDERLINE = logo("sound.off.underline");
+        Translation SOUND_TOOLTIP = logo("sound.tooltip");
+        Translation DRAW_TOOL = logo("draw_tool");
+        Translation DRAW_TOOL_UNDERLINE = logo("draw_tool.underline");
+        Translation DRAW_TOOL_TOOLTIP = logo("draw_tool.tooltip");
+        Translation PICK_TOOL = logo("pick_tool");
+        Translation PICK_TOOL_UNDERLINE = logo("pick_tool.underline");
+        Translation PICK_TOOL_TOOLTIP = logo("pick_tool.tooltip");
+        Translation SELECT_TOOL = logo("select_tool");
+        Translation SELECT_TOOL_UNDERLINE = logo("select_tool.underline");
+        Translation SELECT_TOOL_TOOLTIP = logo("select_tool.tooltip");
+        Translation MOVEIT_TOOL = logo("moveit_tool");
+        Translation MOVEIT_TOOL_UNDERLINE = logo("moveit_tool.underline");
+        Translation MOVEIT_TOOL_TOOLTIP = logo("moveit_tool.tooltip");
+        Translation ERASER_TOOL = logo("eraser_tool");
+        Translation ERASER_TOOL_UNDERLINE = logo("eraser_tool.underline");
+        Translation ERASER_TOOL_TOOLTIP = logo("eraser_tool.tooltip");
+        Translation FILTER_SELECTION = logo("filter_selection");
+        Translation FILTER_SELECTION_UNDERLINE = logo("filter_selection.underline");
+        Translation FILTER_SELECTION_TOOLTIP = logo("filter_selection.tooltip");
+        Translation APPLY_SELECTION = logo("apply_selection");
+        Translation APPLY_SELECTION_UNDERLINE = logo("apply_selection.underline");
+        Translation APPLY_SELECTION_TOOLTIP = logo("apply_selection.tooltip");
+        Translation CLEAR_CANVAS = logo("clear_canvas");
+        Translation CLEAR_CANVAS_UNDERLINE = logo("clear_canvas.underline");
+        Translation CLEAR_CANVAS_TOOLTIP = logo("clear_canvas.tooltip");
+        Translation OPEN_FOLDER = logo("open_folder");
+        Translation OPEN_FOLDER_TOOLTIP = logo("open_folder.tooltip");
+        Translation COPY_CANVAS = logo("copy_canvas");
+        Translation COPY_CANVAS_TOOLTIP = logo("copy_canvas.tooltip");
+        Translation UPLOAD_CONFIG = logo("upload_config");
+        Translation UPLOAD_CONFIG_TOOLTIP = logo("upload_config.tooltip");
+
+        private static Translation logo(String name)
+        {
+            return new Translation("gui.nostalgic_tweaks.logo_editor." + name);
+        }
+
+        private static Translation help(String name)
+        {
+            return new Translation("gui.nostalgic_tweaks.logo_editor.help_overlay." + name);
+        }
+
+        interface Help
+        {
+            Translation TITLE = help("title");
+
+            /**
+             * Make a list of translatable paragraphs for the falling logo blocks editor help overlay.
+             *
+             * @param jsonIdentifier  The base JSON identifier string that precedes the .p%d appendix.
+             * @param numOfParagraphs The number of paragraphs this section will have.
+             * @return An {@link ArrayList} of {@link Translation} paragraphs.
+             */
+            private static ArrayList<Translation> makeInfo(String jsonIdentifier, int numOfParagraphs)
+            {
+                ArrayList<Translation> paragraphs = new ArrayList<>();
+
+                for (int i = 1; i <= numOfParagraphs; i++)
+                    paragraphs.add(help(String.format("%s.p%d", jsonIdentifier, i)));
+
+                return paragraphs;
+            }
+
+            Translation TERMINOLOGY = help("terminology");
+            Translation TIPS_AND_HINTS = help("tips_and_hints");
+            Translation KEY_SHORTCUTS = help("key_shortcuts");
+            Translation CANVAS_TOOLS = help("canvas_tools");
+            Translation PIXEL_SETTINGS = help("pixel_settings");
+            Translation BATCH_EDITING = help("batch_editing");
+            Translation FILE_OPTIONS = help("file_options");
+            Translation MOVE_TOOLBAR = help("move_toolbar");
+            Translation ACTION_HISTORY = help("action_history");
+
+            Supplier<ArrayList<Translation>> TERMINOLOGY_INFO = () -> makeInfo("terminology", 7);
+            Supplier<ArrayList<Translation>> TIPS_AND_HINTS_INFO = () -> makeInfo("tips_and_hints", 4);
+            Supplier<ArrayList<Translation>> KEY_SHORTCUTS_INFO = () -> makeInfo("key_shortcuts", 26);
+            Supplier<ArrayList<Translation>> CANVAS_TOOLS_INFO = () -> makeInfo("canvas_tools", 5);
+            Supplier<ArrayList<Translation>> PIXEL_SETTINGS_INFO = () -> makeInfo("pixel_settings", 3);
+            Supplier<ArrayList<Translation>> BATCH_EDITING_INFO = () -> makeInfo("batch_editing", 3);
+            Supplier<ArrayList<Translation>> FILE_OPTIONS_INFO = () -> makeInfo("file_options", 3);
+            Supplier<ArrayList<Translation>> MOVE_TOOLBAR_INFO = () -> makeInfo("move_toolbar", 2);
+            Supplier<ArrayList<Translation>> ACTION_HISTORY_INFO = () -> makeInfo("action_history", 3);
+        }
+    }
+
+    /**
      * Lang keys that lists use within the graphical user interface.
      */
     interface Listing
     {
         Translation ADD = from("add");
+        Translation SEARCHING = from("searching");
         Translation DISABLED_TITLE = from("disabled_title");
         Translation DISABLED_MESSAGE = from("disabled_message");
         Translation DISABLED_WARNING = from("disabled_warning");
@@ -627,6 +764,7 @@ public interface Lang
         Translation CREATE_PRESET_MESSAGE = from("create_preset.message");
         Translation SENT_PRESET_TITLE = from("sent_preset.title");
         Translation SENT_PRESET_MESSAGE = from("sent_preset.message");
+        Translation FILTER_BY_CATEGORY = from("filter_by_category");
 
         private static Translation from(String name)
         {
@@ -635,9 +773,9 @@ public interface Lang
     }
 
     /**
-     * Lang keys that are used by the color overlay screen.
+     * Lang keys that are used by the color picker overlay.
      */
-    interface Picker
+    interface Colorize
     {
         Translation TITLE = from("title");
         Translation OPEN = from("open");
@@ -652,7 +790,21 @@ public interface Lang
 
         private static Translation from(String name)
         {
-            return new Translation("gui.nostalgic_tweaks.overlay.picker." + name);
+            return new Translation("gui.nostalgic_tweaks.overlay.colorize." + name);
+        }
+    }
+
+    /**
+     * Lang keys that are used by the item picker overlay.
+     */
+    interface Itemize
+    {
+        Translation TITLE = from("title");
+        Translation OPEN = from("open");
+
+        private static Translation from(String name)
+        {
+            return new Translation("gui.nostalgic_tweaks.overlay.itemize." + name);
         }
     }
 
@@ -728,14 +880,12 @@ public interface Lang
         Translation TOGGLE_ALL_HEADER = from("toggle_all.header");
         Translation TOGGLE_ALL_ENABLE = from("toggle_all.enable");
         Translation TOGGLE_ALL_DISABLE = from("toggle_all.disable");
-        Translation TOGGLE_ALL_OVERRIDE = from("toggle_all.override");
         Translation TOGGLE_ALL_LOCAL = from("toggle_all.local");
         Translation TOGGLE_ALL_NETWORK = from("toggle_all.network");
         Translation TOGGLE_ALL_LOCAL_INFO = from("toggle_all.local.info");
         Translation TOGGLE_ALL_NETWORK_INFO = from("toggle_all.network.info");
         Translation TOGGLE_ALL_ENABLE_INFO = from("toggle_all.enable.info");
         Translation TOGGLE_ALL_DISABLE_INFO = from("toggle_all.disable.info");
-        Translation TOGGLE_ALL_OVERRIDE_INFO = from("toggle_all.override.info");
         Translation TOGGLE_ALL_APPLY_INFO = from("toggle_all.apply.info");
 
         private static Translation from(String name)
@@ -791,9 +941,11 @@ public interface Lang
         Translation FOOD_STACKING = from("food_stacking");
         Translation FOOD_HEALTH = from("food_health");
         Translation ARM_SWAY = from("arm_sway");
+        Translation STAMINA_SPRINTING = from("stamina_sprinting");
         Translation WINDOW_TITLE_DISABLED = from("window_title_disabled");
         Translation ROW_HIGHLIGHT_DISABLED = from("row_highlight_disabled");
         Translation CUSTOM_GUI_GRADIENT = from("custom_gui_gradient");
+        Translation CUSTOM_FALLING_LOGO_DISABLED = from("custom_falling_logo_disabled");
 
         private static Translation from(String name)
         {
@@ -814,6 +966,20 @@ public interface Lang
         private static Translation from(String name)
         {
             return new Translation("gui.nostalgic_tweaks.issue." + name);
+        }
+    }
+
+    /**
+     * Lang keys that are used by the home screen mod warning overlay.
+     */
+    interface Warning
+    {
+        Translation POLYTONE = from("polytone");
+        Translation OPTIFINE = from("optifine");
+
+        private static Translation from(String name)
+        {
+            return new Translation("gui.nostalgic_tweaks.warning." + name);
         }
     }
 
@@ -842,6 +1008,9 @@ public interface Lang
         Translation SCREEN_CONFIG = from("menuOption.config");
         Translation SOLID_COLOR = from("colorType.solid");
         Translation GRADIENT_COLOR = from("colorType.gradient");
+        Translation STAMINA_REGAIN_NORMAL = from("staminaRegain.normal");
+        Translation STAMINA_REGAIN_HALF = from("staminaRegain.half");
+        Translation STAMINA_REGAIN_NONE = from("staminaRegain.none");
         Translation BACKGROUND_SOLID_BLACK = from("guiBackground.solid_black");
         Translation BACKGROUND_SOLID_BLUE = from("guiBackground.solid_blue");
         Translation BACKGROUND_GRADIENT_BLUE = from("guiBackground.gradient_blue");

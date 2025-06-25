@@ -28,12 +28,15 @@ public interface CandyGroup
     Container INTERFACE_HUD = Container.group(INTERFACE, "interface_hud").color(0x0094FF).icon(Icons.HUD).build();
     Container INTERFACE_HUD_OFFHAND = Container.group(INTERFACE_HUD, "interface_hud_offhand").color(0xFFBC9B).icon(Icons.ARM_SWAY).build();
     Container INTERFACE_HUD_VERSION = Container.group(INTERFACE_HUD, "interface_hud_version").color(0xB7603E).icon(Items.WRITABLE_BOOK).build();
+    Container INTERFACE_HUD_TOAST = Container.group(INTERFACE_HUD, "interface_hud_toast").icon(Items.BREAD).color(0xBB8926).build();
     Container INTERFACE_HUD_EXP_BAR = Container.group(INTERFACE_HUD, "interface_hud_exp_bar").color(0x86C457).icon(Icons.XP_BAR).build();
     Container INTERFACE_HUD_EXP_BAR_ALT_PROGRESS = Container.group(INTERFACE_HUD_EXP_BAR, "interface_hud_exp_bar_alt_progress").color(0x8FB7A3).icon(Icons.XP_HALF_BAR).build();
     Container INTERFACE_HUD_EXP_BAR_ALT_LEVEL = Container.group(INTERFACE_HUD_EXP_BAR, "interface_hud_exp_bar_alt_level").color(0x7EFC20).icon(Icons.XP_LEVEL).build();
     Container INTERFACE_HUD_HUNGER_BAR = Container.group(INTERFACE_HUD, "interface_hud_hunger_bar").color(0xD42A2A).icon(Icons.HUNGER).build();
     Container INTERFACE_HUD_HUNGER_BAR_ALT_SATURATION = Container.group(INTERFACE_HUD_HUNGER_BAR, "interface_hud_hunger_bar_alt_saturation").color(0xE56B7E).icon(Icons.HUNGER_PARTIAL).build();
     Container INTERFACE_HUD_HUNGER_BAR_ALT_FOOD = Container.group(INTERFACE_HUD_HUNGER_BAR, "interface_hud_hunger_bar_alt_food").color(0xB79859).icon(Items.OAK_SIGN).build();
+    Container INTERFACE_HUD_STAMINA_BAR = Container.group(INTERFACE_HUD, "interface_hud_stamina_bar").color(0xFCD200).icon(Icons.HUD_STAMINA).build();
+    Container INTERFACE_HUD_STAMINA_BAR_ALT = Container.group(INTERFACE_HUD_STAMINA_BAR, "interface_hud_stamina_bar_alt").color(0x8B8B8B).icon(Icons.HUD_STAMINA_RECHARGE).build();
     Container INTERFACE_GUI = Container.group(INTERFACE, "interface_gui").color(0x72C9fC).icon(Icons.CLIENT).build();
     Container INTERFACE_GUI_COLOR = Container.group(INTERFACE_GUI, "interface_gui_color").color(0xEEA930).icon(Icons.FILLED_COLOR_PICKER).build();
     Container INTERFACE_CHAT = Container.group(INTERFACE, "interface_chat").color(0xE0E0E0).icon(Icons.CHAT).build();

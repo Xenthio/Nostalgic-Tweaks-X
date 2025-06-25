@@ -7,9 +7,13 @@ import mod.adrenix.nostalgic.client.gui.tooltip.Tooltip;
 import mod.adrenix.nostalgic.util.client.gui.GuiUtil;
 import mod.adrenix.nostalgic.util.client.renderer.RenderPass;
 import mod.adrenix.nostalgic.util.client.renderer.RenderUtil;
+import mod.adrenix.nostalgic.util.common.CollectionUtil;
 import mod.adrenix.nostalgic.util.common.annotation.PublicAPI;
+import mod.adrenix.nostalgic.util.common.array.UniqueArrayList;
 import mod.adrenix.nostalgic.util.common.color.Color;
+import mod.adrenix.nostalgic.util.common.data.RecursionAvoidance;
 import mod.adrenix.nostalgic.util.common.math.MathUtil;
+import mod.adrenix.nostalgic.util.common.math.Rectangle;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -24,7 +28,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widget>, Widget extends DynamicWidget<Builder, Widget>>
     implements Renderable, GuiEventListener, LayoutElement
@@ -112,10 +118,12 @@ public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widg
     protected boolean active = true;
     protected boolean visible = true;
     protected boolean focused = false;
+    protected boolean overrideFocus = false;
     protected final Builder builder;
     protected final RenderPass renderPass;
     @Nullable protected Screen screen;
     public final WidgetCache cache;
+    private final RecursionAvoidance hoverOrFocusSync;
 
     /* Constructor */
 
@@ -124,6 +132,7 @@ public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widg
         this.builder = builder;
         this.renderPass = builder.renderPass;
         this.tabOrderGroup = builder.tabOrderGroup;
+        this.hoverOrFocusSync = RecursionAvoidance.create();
         this.cache = WidgetCache.from(this);
     }
 
@@ -497,8 +506,8 @@ public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widg
      * @param mouseX The current x-coordinate of the mouse.
      * @param mouseY The current y-coordinate of the mouse.
      * @param button The mouse button that was clicked.
-     * @param dragX  The new dragged offset x-coordinate from the mouse.
-     * @param dragY  The new dragged offset y-coordinate from the mouse.
+     * @param dragX  The x-distance of the drag.
+     * @param dragY  The y-distance of the drag.
      * @return Whether this method handled the event.
      */
     @Override
@@ -599,6 +608,25 @@ public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widg
     }
 
     /**
+     * Manually override any builder context options that prevent a widget from being focused. Use with caution as this
+     * may cause unexpected side effects.
+     *
+     * @param focused Whether this widget should absolutely be focused.
+     */
+    @PublicAPI
+    public void setOverrideFocused(boolean focused)
+    {
+        this.focused = focused;
+        this.overrideFocus = focused;
+
+        if (this.builder.whenFocused != null && focused)
+            this.builder.whenFocused.accept(this.builder.widget.get());
+
+        if (this.getScreen() != null)
+            this.getScreen().setFocused(this);
+    }
+
+    /**
      * Set this widget as focused.
      */
     @PublicAPI
@@ -622,8 +650,16 @@ public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widg
     @PublicAPI
     public void setClickFocus()
     {
-        if (this.getBuilder().focusOnClick)
-            this.setFocused(true);
+        this.setFocused(this.getBuilder().focusOnClick);
+    }
+
+    /**
+     * @return Whether this widget can be focused due to a mouse click event.
+     */
+    @PublicAPI
+    public boolean canFocusOnClick()
+    {
+        return this.getBuilder().focusOnClick;
     }
 
     /**
@@ -632,6 +668,9 @@ public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widg
     @PublicAPI
     public boolean canFocus()
     {
+        if (this.overrideFocus)
+            return true;
+
         return this.getBuilder().canFocus.getAsBoolean();
     }
 
@@ -692,7 +731,15 @@ public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widg
         int mouseX = this.getMouseX();
         int mouseY = this.getMouseY();
 
-        return this.isFocused() || this.isMouseOver(mouseX, mouseY);
+        boolean isHoveredOrFocused = this.isFocused() || this.isMouseOver(mouseX, mouseY);
+
+        if (this.hoverOrFocusSync.isProcessing())
+            return isHoveredOrFocused;
+
+        boolean areAnySyncedHoveredOrFocused = Boolean.TRUE.equals(this.hoverOrFocusSync.process(() -> this.builder.hoverSync.stream()
+            .anyMatch(DynamicWidget::isHoveredOrFocused)));
+
+        return isHoveredOrFocused || areAnySyncedHoveredOrFocused;
     }
 
     /**
@@ -754,6 +801,18 @@ public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widg
     public int getTabOrderGroup()
     {
         return this.tabOrderGroup;
+    }
+
+    /**
+     * This is <b>not</b> the same as {@link #getRectangle()} inasmuch that this method returns a position rectangle
+     * that is used by other mod utilities.
+     *
+     * @return A {@link Rectangle} instance with the widget's current position.
+     */
+    @PublicAPI
+    public Rectangle getPositionRectangle()
+    {
+        return new Rectangle(this.x, this.y, this.getEndX(), this.getEndY());
     }
 
     /**
@@ -1114,6 +1173,19 @@ public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widg
     }
 
     /**
+     * Render instructions for the widget.
+     *
+     * @param graphics    The {@link GuiGraphics} object used for rendering.
+     * @param mouseX      The x-coordinate of the mouse cursor.
+     * @param mouseY      The y-coordinate of the mouse cursor.
+     * @param partialTick The normalized progress between two ticks [0.0F, 1.0F].
+     */
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    {
+    }
+
+    /**
      * Check if this widget has the given data.
      *
      * @param data A data {@link Object} instance.
@@ -1126,16 +1198,41 @@ public abstract class DynamicWidget<Builder extends DynamicBuilder<Builder, Widg
     }
 
     /**
-     * Render instructions for the widget.
+     * Check if this widget has the given data, and if so, is yielded back in an {@link Optional}.
      *
-     * @param graphics    The {@link GuiGraphics} object used for rendering.
-     * @param mouseX      The x-coordinate of the mouse cursor.
-     * @param mouseY      The y-coordinate of the mouse cursor.
-     * @param partialTick The normalized progress between two ticks [0.0F, 1.0F].
+     * @param data A data {@link Object} instance, or {@code null}.
+     * @param <T>  The class type of the data.
+     * @return An {@link Optional} containing the passed data argument if it was attached to this widget.
      */
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick)
+    @PublicAPI
+    @SuppressWarnings("unchecked") // Object#equals is used, and therefore, types must be equivalent
+    public <T> Optional<T> maybeHas(@Nullable T data)
     {
+        return (Optional<T>) this.builder.attachedData.stream().filter(obj -> obj.equals(data)).findFirst();
+    }
+
+    /**
+     * Get the attached data associated with this widget.
+     *
+     * @return A {@link UniqueArrayList} of all attached {@link Object} data.
+     */
+    @PublicAPI
+    public UniqueArrayList<Object> getAttachments()
+    {
+        return this.builder.attachedData;
+    }
+
+    /**
+     * Find data attachments that match the given class type.
+     *
+     * @param data A data {@link Class} type.
+     * @param <T>  The class type of the data to search for.
+     * @return A {@link Stream} of objects that are instances of the given data class type.
+     */
+    @PublicAPI
+    public <T> Stream<T> find(Class<T> data)
+    {
+        return CollectionUtil.fromCast(this.builder.attachedData, data);
     }
 
     /**

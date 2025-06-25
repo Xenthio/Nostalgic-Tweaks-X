@@ -86,7 +86,7 @@ public interface ModTweak
      * Controls the config menu background opacity when the player is in a world.
      */
     TweakNumber<Integer> MENU_BACKGROUND_OPACITY = TweakNumber.client(85, ModGroup.VISUALS)
-        .slider(Lang.Picker.OPACITY, 0, 100, "%")
+        .slider(Lang.Colorize.OPACITY, 0, 100, "%")
         .load()
         .build();
 
@@ -109,7 +109,7 @@ public interface ModTweak
      * Changes the opacity of the menu category tree outlines.
      */
     TweakNumber<Integer> CATEGORY_TREE_OPACITY = TweakNumber.client(80, ModGroup.TREE)
-        .slider(Lang.Picker.OPACITY, 0, 100, "%")
+        .slider(Lang.Colorize.OPACITY, 0, 100, "%")
         .load()
         .build();
 
@@ -132,7 +132,7 @@ public interface ModTweak
      * Changes the opacity of background row highlighting.
      */
     TweakNumber<Integer> ROW_HIGHLIGHT_OPACITY = TweakNumber.client(20, ModGroup.ROWS)
-        .slider(Lang.Picker.OPACITY, 0, 100, "%")
+        .slider(Lang.Colorize.OPACITY, 0, 100, "%")
         .alert(TweakAlert.ROW_HIGHLIGHT_DISABLED)
         .load()
         .build();
@@ -148,6 +148,12 @@ public interface ModTweak
      * toast will not appear the next time a title screen is displayed.
      */
     TweakFlag OPENED_CONFIG_SCREEN = TweakFlag.client(false, Category.MOD).ignore().load().build();
+
+    /**
+     * Control flag that determines if the user has successfully interacted with the Sodium information overlay. If so,
+     * then the Sodium overlay screen will not open when the config screen is opened.
+     */
+    TweakFlag OPENED_SODIUM_SCREEN = TweakFlag.client(false, Category.MOD).ignore().load().build();
 
     /**
      * Control flag that determines if the screen has been displayed to the user. This field is saved when the supporter

@@ -3,7 +3,10 @@ package mod.adrenix.nostalgic.listener.common;
 import dev.architectury.event.CompoundEventResult;
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.InteractionEvent;
+import mod.adrenix.nostalgic.NostalgicTweaks;
 import mod.adrenix.nostalgic.helper.gameplay.combat.SwordBlockingHelper;
+import mod.adrenix.nostalgic.mixin.access.AxeItemAccess;
+import mod.adrenix.nostalgic.mixin.access.ShovelItemAccess;
 import mod.adrenix.nostalgic.tweak.config.GameplayTweak;
 import mod.adrenix.nostalgic.util.common.world.PlayerUtil;
 import net.minecraft.core.BlockPos;
@@ -81,6 +84,7 @@ public abstract class InteractionListener
         Level level = player.level();
         RandomSource randomSource = level.getRandom();
         BlockState blockState = level.getBlockState(blockPos);
+        BlockState aboveState = level.getBlockState(blockPos.above());
         Item itemInHand = player.getItemInHand(hand).getItem();
 
         if (GameplayTweak.DISABLE_ANVIL.get() && blockState.is(BlockTags.ANVIL))
@@ -91,7 +95,7 @@ public abstract class InteractionListener
 
         if (GameplayTweak.TILLED_GRASS_SEEDS.get() && blockState.is(Blocks.GRASS_BLOCK) && itemInHand instanceof HoeItem)
         {
-            if (randomSource.nextInt(10) != 0)
+            if (!aboveState.isAir() || randomSource.nextInt(10) != 0)
                 return EventResult.pass();
 
             double x = (double) blockPos.getX() + 0.5D + Mth.nextDouble(randomSource, -0.05D, 0.05D);
@@ -106,6 +110,21 @@ public abstract class InteractionListener
 
             seedEntity.setDefaultPickUpDelay();
             level.addFreshEntity(seedEntity);
+        }
+
+        if (NostalgicTweaks.isServer())
+        {
+            if (GameplayTweak.DISABLE_SHOVEL_PATHING.get() && itemInHand instanceof ShovelItem)
+            {
+                if (ShovelItemAccess.NT$FLATTENABLES().containsKey(blockState.getBlock()))
+                    return EventResult.interruptTrue();
+            }
+
+            if (GameplayTweak.DISABLE_AXE_STRIPPING.get() && itemInHand instanceof AxeItem)
+            {
+                if (AxeItemAccess.NT$STRIPPABLES().containsKey(blockState.getBlock()))
+                    return EventResult.interruptTrue();
+            }
         }
 
         return EventResult.pass();

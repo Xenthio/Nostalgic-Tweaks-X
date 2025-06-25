@@ -10,7 +10,10 @@ import mod.adrenix.nostalgic.tweak.config.CandyTweak;
 import mod.adrenix.nostalgic.tweak.config.GameplayTweak;
 import mod.adrenix.nostalgic.tweak.config.ModTweak;
 import mod.adrenix.nostalgic.tweak.enums.Hotbar;
+import mod.adrenix.nostalgic.tweak.enums.StaminaRegain;
 import mod.adrenix.nostalgic.tweak.listing.ItemMap;
+import mod.adrenix.nostalgic.tweak.listing.ItemSet;
+import mod.adrenix.nostalgic.tweak.listing.StringSet;
 
 /**
  * <b color=red>IMPORTANT</b>
@@ -49,6 +52,7 @@ public class ServerConfig implements ConfigMeta
 
     public static class EyeCandy
     {
+        public boolean hideAdvancementChats = CandyTweak.HIDE_ADVANCEMENT_CHATS.register("hideAdvancementChats");
         public boolean applyFullBlockCollisions = CandyTweak.APPLY_FULL_BLOCK_COLLISIONS.register("applyFullBlockCollisions");
         public Hotbar oldCreativeHotbar = CandyTweak.OLD_CREATIVE_HOTBAR.register("oldCreativeHotbar");
         public int itemMergeLimit = CandyTweak.ITEM_MERGE_LIMIT.register("itemMergeLimit");
@@ -72,6 +76,8 @@ public class ServerConfig implements ConfigMeta
 
         public boolean disableAnimalPanic = GameplayTweak.DISABLE_ANIMAL_PANIC.register("disableAnimalPanic");
         public boolean disableMonsterAvoidSun = GameplayTweak.DISABLE_MONSTER_AVOID_SUN.register("disableMonsterAvoidSun");
+        public boolean disableSkeletonStrafing = GameplayTweak.DISABLE_SKELETON_STRAFING.register("disableSkeletonStrafing");
+        public boolean oldCreeperStrafeOnSwell = GameplayTweak.OLD_CREEPER_STRAFE_ON_SWELL.register("oldCreeperStrafeOnSwell");
 
         // Monsters
 
@@ -90,10 +96,12 @@ public class ServerConfig implements ConfigMeta
         // Animal Spawning
 
         public int animalSpawnCap = GameplayTweak.ANIMAL_SPAWN_CAP.register("animalSpawnCap");
+        public StringSet oldAnimalSpawnList = GameplayTweak.OLD_ANIMAL_SPAWN_LIST.register("oldAnimalSpawnList");
         public boolean oldAnimalSpawning = GameplayTweak.OLD_ANIMAL_SPAWNING.register("oldAnimalSpawning");
         public boolean disableBabyAnimalSpawning = GameplayTweak.DISABLE_BABY_ANIMAL_SPAWNING.register("disableBabyAnimalSpawning");
         public boolean disableAnimalBreeding = GameplayTweak.DISABLE_ANIMAL_BREEDING.register("disableAnimalBreeding");
         public boolean disableAnimalTempting = GameplayTweak.DISABLE_ANIMAL_TEMPTING.register("disableAnimalTempting");
+        public boolean keepBabyAnimalWhileOldSpawn = GameplayTweak.KEEP_BABY_ANIMAL_WHILE_OLD_SPAWN.register("keepBabyAnimalWhileOldSpawn");
 
         // Sheep
 
@@ -143,9 +151,24 @@ public class ServerConfig implements ConfigMeta
 
         // Experience
 
+        public boolean immediateExperiencePickup = GameplayTweak.IMMEDIATE_EXPERIENCE_PICKUP.register("immediateExperiencePickup");
         public boolean disableOrbSpawn = GameplayTweak.DISABLE_ORB_SPAWN.register("disableOrbSpawn");
         public boolean disableAnvil = GameplayTweak.DISABLE_ANVIL.register("disableAnvil");
         public boolean disableEnchantTable = GameplayTweak.DISABLE_ENCHANT_TABLE.register("disableEnchantTable");
+
+        // Stamina Mechanics
+
+        public boolean staminaSprint = GameplayTweak.STAMINA_SPRINT.register("staminaSprint");
+        public StaminaRegain staminaRegainWhenMoving = GameplayTweak.STAMINA_REGAIN_WHEN_MOVING.register("staminaRegainWhenMoving");
+        public boolean staminaInfinitePeaceful = GameplayTweak.STAMINA_INFINITE_PEACEFUL.register("staminaInfinitePeaceful");
+        public int staminaDuration = GameplayTweak.STAMINA_DURATION.register("staminaDuration");
+        public int staminaRecharge = GameplayTweak.STAMINA_RECHARGE.register("staminaRecharge");
+        public int staminaCooldown = GameplayTweak.STAMINA_COOLDOWN.register("staminaCooldown");
+
+        // Stamina Effects
+
+        public boolean staminaSaturationEffect = GameplayTweak.STAMINA_SATURATION_EFFECT.register("staminaSaturationEffect");
+        public boolean staminaHungerEffect = GameplayTweak.STAMINA_HUNGER_EFFECT.register("staminaHungerEffect");
 
         // Player Mechanics
 
@@ -154,6 +177,12 @@ public class ServerConfig implements ConfigMeta
         public boolean leftClickDoor = GameplayTweak.LEFT_CLICK_DOOR.register("leftClickDoor");
         public boolean leftClickLever = GameplayTweak.LEFT_CLICK_LEVER.register("leftClickLever");
         public boolean leftClickButton = GameplayTweak.LEFT_CLICK_BUTTON.register("leftClickButton");
+
+        // Fishing Mechanics
+
+        public boolean oldFishingLoot = GameplayTweak.OLD_FISHING_LOOT.register("oldFishingLoot");
+        public boolean oldFishingLuring = GameplayTweak.OLD_FISHING_LURING.register("oldFishingLuring");
+        public boolean oldFishingCasting = GameplayTweak.OLD_FISHING_CASTING.register("oldFishingCasting");
 
         // Farming Mechanics
 
@@ -182,9 +211,15 @@ public class ServerConfig implements ConfigMeta
 
         // Block Mechanics
 
+        public ItemSet selfBlockDrops = GameplayTweak.SELF_BLOCK_DROPS.register("selfBlockDrops");
         public boolean punchTntIgnition = GameplayTweak.PUNCH_TNT_IGNITION.register("punchTntIgnition");
         public boolean disableBedBounce = GameplayTweak.DISABLE_BED_BOUNCE.register("disableBedBounce");
         public boolean alwaysOpenChest = GameplayTweak.ALWAYS_OPEN_CHEST.register("alwaysOpenChest");
+
+        // Tool Mechanics
+
+        public boolean disableShovelPathing = GameplayTweak.DISABLE_SHOVEL_PATHING.register("disableShovelPathing");
+        public boolean disableAxeStripping = GameplayTweak.DISABLE_AXE_STRIPPING.register("disableAxeStripping");
 
         // Food
 

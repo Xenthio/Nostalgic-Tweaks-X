@@ -24,7 +24,9 @@ public interface GameplayGroup
     Container MECHANICS_BLOCK_TNT = Container.group(MECHANICS_BLOCK, "mechanics_block_tnt").color(0xE63D14).icon(Blocks.TNT).build();
     Container MECHANICS_BLOCK_CHEST = Container.group(MECHANICS_BLOCK, "mechanics_block_chest").color(0xFFB444).icon(Blocks.CHEST).build();
     Container MECHANICS_FARMING = Container.group(MECHANICS, "mechanics_farming").color(0x69B038).icon(Items.WHEAT_SEEDS).build();
+    Container MECHANICS_FISHING = Container.group(MECHANICS, "mechanics_fishing").color(0x896727).icon(Items.FISHING_ROD).build();
     Container MECHANICS_PLAYER = Container.group(MECHANICS, "mechanics_player").color(0xB6896C).icon(Items.PLAYER_HEAD).build();
+    Container MECHANICS_TOOLS = Container.group(MECHANICS, "mechanics_tools").color(0x8D8E93).icon(Items.IRON_AXE).build();
     Container MECHANICS_SWIMMING = Container.group(MECHANICS, "mechanics_swimming").color(0x375DCA).icon(Items.WATER_BUCKET).build();
     Container MECHANICS_ITEMS = Container.group(MECHANICS, "mechanics_items").color(0x8CF4E2).icon(Items.DIAMOND).build();
 
@@ -33,6 +35,11 @@ public interface GameplayGroup
     Container EXPERIENCE = Container.group(Category.GAMEPLAY, "experience").color(0xF5FF8F).icon(Items.EXPERIENCE_BOTTLE).build();
     Container EXPERIENCE_ORB = Container.group(EXPERIENCE, "experience_orb").color(0xBBB71B).icon(Icons.EXPERIENCE).build();
     Container EXPERIENCE_BLOCK = Container.group(EXPERIENCE, "experience_block").color(0xA4EDDC).icon(Blocks.ENCHANTING_TABLE).build();
+
+    // Stamina
+
+    Container STAMINA = Container.group(Category.GAMEPLAY, "stamina").color(0xFFE47C).icon(Icons.LIGHTNING).build();
+    Container STAMINA_EFFECTS = Container.group(STAMINA, "stamina_effects").color(0x375DCA).icon(Items.POTION).build();
 
     // Hunger
 

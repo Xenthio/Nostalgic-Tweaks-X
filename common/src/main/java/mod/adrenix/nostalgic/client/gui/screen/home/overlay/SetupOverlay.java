@@ -23,11 +23,23 @@ import java.util.function.BiConsumer;
 public abstract class SetupOverlay
 {
     /**
-     * Open a new initial config setup overlay.
+     * Flag holder for tracking the state of the overlay.
      */
-    public static void open()
+    public static final FlagHolder OPENED = FlagHolder.off();
+
+    /**
+     * Open a new initial config setup overlay.
+     *
+     * @return The setup {@link Overlay} instance.
+     */
+    public static Overlay open()
     {
-        getOverlay().open();
+        Overlay overlay = getOverlay();
+
+        OPENED.enable();
+        overlay.runOnClose(OPENED::disable);
+
+        return overlay.open();
     }
 
     /**
@@ -38,7 +50,7 @@ public abstract class SetupOverlay
         int padding = 2;
 
         final Overlay overlay = Overlay.create(Lang.Home.INIT_CONFIG)
-            .icon(Icons.MECHANICAL_TOOLS)
+            .icon(Icons.SAVE_FLOPPY)
             .padding(padding)
             .resizeUsingPercentage(0.6D)
             .resizeHeightForWidgets()

@@ -28,6 +28,7 @@ public class TextBuilder extends DynamicBuilder<TextBuilder, TextWidget>
     boolean useTextWidth = false;
     boolean useSeparator = false;
     boolean disableUnderline = false;
+    boolean isCenterVertical = false;
     boolean isCenterAligned = false;
     boolean useClickSound = true;
     boolean useEllipsis = false;
@@ -35,11 +36,13 @@ public class TextBuilder extends DynamicBuilder<TextBuilder, TextWidget>
     int iconMargin = 0;
     LinkedHashSet<DynamicWidget<?, ?>> intersections = new LinkedHashSet<>();
     @Nullable IntSupplier maxEndX = null;
+    @Nullable Color hoverColor = null;
     @Nullable Color backgroundColor = null;
     IntSupplier separatorHeight = () -> 2;
     Color separatorColor = Color.WHITE;
     Color clickableColor = Color.WHITE;
     Color fontColor = Color.WHITE;
+    BooleanSupplier backgroundIf = BooleanSupplier.ALWAYS;
     BooleanSupplier highlightIf = BooleanSupplier.ALWAYS;
     BooleanSupplier italic = BooleanSupplier.NEVER;
     @Nullable Runnable onPress = null;
@@ -113,6 +116,18 @@ public class TextBuilder extends DynamicBuilder<TextBuilder, TextWidget>
     public TextBuilder lineHeight(int height)
     {
         this.lineHeight = height;
+
+        return this;
+    }
+
+    /**
+     * Make the text centered only within its bounding height box.
+     */
+    @PublicAPI
+    public TextBuilder centerVertical()
+    {
+        this.isCenterVertical = true;
+        this.isCenterAligned = true;
 
         return this;
     }
@@ -313,6 +328,19 @@ public class TextBuilder extends DynamicBuilder<TextBuilder, TextWidget>
     }
 
     /**
+     * Only show the defined background color when the given boolean supplier yields {@code true}.
+     *
+     * @param when A {@link BooleanSupplier} instance.
+     */
+    @PublicAPI
+    public TextBuilder backgroundWhen(BooleanSupplier when)
+    {
+        this.backgroundIf = when;
+
+        return this;
+    }
+
+    /**
      * Set a boolean supplier that indicates whether the text label is rendered in italics.
      *
      * @param italics A {@link BooleanSupplier} instance.
@@ -448,6 +476,19 @@ public class TextBuilder extends DynamicBuilder<TextBuilder, TextWidget>
     }
 
     /**
+     * Show a specific color when the widget is hovered or focused.
+     *
+     * @param color The {@link Color} to show when the given widget is hovered or focused.
+     */
+    @PublicAPI
+    public TextBuilder hoverOrFocusColor(Color color)
+    {
+        this.hoverColor = color;
+
+        return this;
+    }
+
+    /**
      * Set an icon that will be rendered to the left of the text with the given margin.
      *
      * @param supplier A {@link TextureIcon} {@link Supplier}.
@@ -511,6 +552,33 @@ public class TextBuilder extends DynamicBuilder<TextBuilder, TextWidget>
     public TextBuilder icon(TextureIcon icon)
     {
         return this.icon(() -> icon, 3);
+    }
+
+    /**
+     * Brighten the icon by the given amount when this widget is focused or hovered.
+     *
+     * @param amount The amount to brighten the icon by. An amount less than {@code 1.0F} will darken the icon and an
+     *               amount greater than {@code 1.0F} will brighten the icon.
+     */
+    @PublicAPI
+    public TextBuilder brightenIconOnHover(float amount)
+    {
+        this.brightenOnHover = true;
+        this.brightenAmount = () -> amount;
+
+        return this;
+    }
+
+    /**
+     * Brighten the icon using the default icon brightness settings when this widget is focused or hovered. Use
+     * {@link #brightenIconOnHover(float)} to enable brightness and to define how much to brighten by.
+     */
+    @PublicAPI
+    public TextBuilder brightenIconOnHover()
+    {
+        this.brightenOnHover = true;
+
+        return this;
     }
 
     /**

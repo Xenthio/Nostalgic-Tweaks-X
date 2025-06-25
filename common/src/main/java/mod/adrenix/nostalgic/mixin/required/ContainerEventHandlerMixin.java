@@ -25,6 +25,21 @@ public interface ContainerEventHandlerMixin
     }
 
     /**
+     * If this implements {@link DynamicScreen} then changes the results based on its key release helper.
+     */
+    @ModifyReturnValue(
+        method = "keyReleased",
+        at = @At("RETURN")
+    )
+    private boolean nt_required$onKeyReleased(boolean isKeyReleased, int keyCode, int scanCode, int modifiers)
+    {
+        if (!isKeyReleased && this instanceof DynamicScreen<?> helper)
+            return helper.isKeyReleased(keyCode, scanCode, modifiers);
+
+        return isKeyReleased;
+    }
+
+    /**
      * If this implements {@link DynamicScreen} then changes the results based on its mouse clicked helper.
      */
     @ModifyReturnValue(
@@ -67,5 +82,20 @@ public interface ContainerEventHandlerMixin
             return screen.isMouseDragged(mouseX, mouseY, button, dragX, dragY);
 
         return isMouseDragged;
+    }
+
+    /**
+     * If this implements {@link DynamicScreen} then changes the results based on its mouse scrolled helper.
+     */
+    @ModifyReturnValue(
+        method = "mouseScrolled",
+        at = @At("RETURN")
+    )
+    default boolean nt_required$onMouseScrolled(boolean isMouseScrolled, double mouseX, double mouseY, double deltaX, double deltaY)
+    {
+        if (!isMouseScrolled && this instanceof DynamicScreen<?> helper)
+            return helper.isMouseScrolled(mouseX, mouseY, deltaX, deltaY);
+
+        return isMouseScrolled;
     }
 }

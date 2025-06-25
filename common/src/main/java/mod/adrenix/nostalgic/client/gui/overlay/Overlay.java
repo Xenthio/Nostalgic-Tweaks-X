@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class Overlay extends Screen implements RelativeLayout, WidgetHolder, ParentHolder, TooltipManager, GuiOffset
@@ -53,7 +54,7 @@ public class Overlay extends Screen implements RelativeLayout, WidgetHolder, Par
      */
     public static OverlayBuilder create()
     {
-        return new OverlayBuilder(Lang.EMPTY.get());
+        return new OverlayBuilder(Lang.EMPTY::get);
     }
 
     /**
@@ -64,7 +65,7 @@ public class Overlay extends Screen implements RelativeLayout, WidgetHolder, Par
      */
     public static OverlayBuilder create(Component title)
     {
-        return new OverlayBuilder(title);
+        return new OverlayBuilder(() -> title);
     }
 
     /**
@@ -75,7 +76,18 @@ public class Overlay extends Screen implements RelativeLayout, WidgetHolder, Par
      */
     public static OverlayBuilder create(Translation langKey)
     {
-        return new OverlayBuilder(langKey.get());
+        return new OverlayBuilder(langKey::get);
+    }
+
+    /**
+     * Start the creation of a new overlay instance.
+     *
+     * @param title The {@link Supplier} that provides the {@link Component} to show on overlay header.
+     * @return A new {@link OverlayBuilder} instance.
+     */
+    public static OverlayBuilder create(Supplier<Component> title)
+    {
+        return new OverlayBuilder(title);
     }
 
     /* Fields */
@@ -102,7 +114,7 @@ public class Overlay extends Screen implements RelativeLayout, WidgetHolder, Par
 
     Overlay(OverlayBuilder builder)
     {
-        super(builder.title);
+        super(builder.title.get());
 
         this.builder = builder;
         this.widgets = builder.widgets;
@@ -1330,19 +1342,19 @@ public class Overlay extends Screen implements RelativeLayout, WidgetHolder, Par
 
     /**
      * Updates the overlay's x/y position based on the builder's x/y suppliers if any are present. This method will
-     * update the overlay if it is needed.
+     * update the overlay if it is necessary.
      */
     private void setPositionFromSuppliers()
     {
-        if (this.builder.supplierX != null && this.builder.supplierX.getAsInt() != this.x)
-            this.x = this.builder.supplierX.getAsInt();
+        if (this.builder.xFunction != null && this.builder.xFunction.applyAsInt(this) != this.x)
+            this.x = this.builder.xFunction.applyAsInt(this);
 
-        if (this.builder.supplierY != null && this.builder.supplierY.getAsInt() != this.y)
-            this.y = this.builder.supplierY.getAsInt();
+        if (this.builder.yFunction != null && this.builder.yFunction.applyAsInt(this) != this.y)
+            this.y = this.builder.yFunction.applyAsInt(this);
 
         if (this.builder.aboveOrBelow != null)
         {
-            if (this.builder.supplierX == null)
+            if (this.builder.xFunction == null)
                 this.x = this.builder.aboveOrBelow.getX();
 
             int scaledHeight = GuiUtil.getGuiHeight();
@@ -1571,7 +1583,7 @@ public class Overlay extends Screen implements RelativeLayout, WidgetHolder, Par
      */
     private void center()
     {
-        if (this.builder.supplierX != null || this.builder.supplierY != null)
+        if (this.builder.xFunction != null || this.builder.yFunction != null)
             return;
 
         double lastX = this.x;
@@ -1662,7 +1674,9 @@ public class Overlay extends Screen implements RelativeLayout, WidgetHolder, Par
             .max()
             .orElse(this.getInsideX() + 20);
 
-        return Math.abs(maxX - minX);
+        int margin = Math.abs(this.relativeLeft.getX() - minX) * 2;
+
+        return Math.abs(maxX - minX) + margin;
     }
 
     /**
@@ -1680,7 +1694,9 @@ public class Overlay extends Screen implements RelativeLayout, WidgetHolder, Par
             .max()
             .orElse(this.getInsideY() + 20);
 
-        return Math.abs(maxY - minY);
+        int margin = Math.abs(this.relativeTop.getY() - minY) * 2;
+
+        return Math.abs(maxY - minY) + margin;
     }
 
     /**

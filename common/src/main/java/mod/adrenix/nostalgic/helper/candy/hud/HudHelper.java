@@ -2,7 +2,9 @@ package mod.adrenix.nostalgic.helper.candy.hud;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import mod.adrenix.nostalgic.helper.gameplay.stamina.StaminaRenderer;
 import mod.adrenix.nostalgic.mixin.access.GuiAccess;
+import mod.adrenix.nostalgic.tweak.config.CandyTweak;
 import mod.adrenix.nostalgic.util.ModTracker;
 import mod.adrenix.nostalgic.util.client.gui.GuiUtil;
 import mod.adrenix.nostalgic.util.common.data.FlagHolder;
@@ -119,6 +121,26 @@ public abstract class HudHelper
     }
 
     /**
+     * @return The height offset to use for the stamina bar.
+     */
+    private static int getHeightOffsetForStamina()
+    {
+        int heightOffset = 49;
+        boolean isFoodOff = CandyTweak.HIDE_HUNGER_BAR.get();
+        LocalPlayer player = Minecraft.getInstance().player;
+
+        if (isFoodOff)
+        {
+            int armorValue = NullableResult.getOrElse(player, 0, LocalPlayer::getArmorValue);
+
+            if (armorValue == 0)
+                heightOffset -= 10;
+        }
+
+        return heightOffset;
+    }
+
+    /**
      * Begin managing the heads-up display.
      *
      * @param graphics The {@link GuiGraphics} instance.
@@ -172,7 +194,9 @@ public abstract class HudHelper
         {
             case VEHICLE_HEALTH ->
             {
-                if (isVehicleHealthShown())
+                int armorValue = NullableResult.getOrElse(getPlayer(), 0, Player::getArmorValue);
+
+                if (isVehicleHealthShown() && armorValue > 0)
                     graphics.pose().translate(0.0F, -10.0F, 0.0F);
             }
             case EXPERIENCE_BAR ->
@@ -194,16 +218,33 @@ public abstract class HudHelper
                 graphics.pose().pushPose();
                 graphics.pose().translate((float) (GuiUtil.getGuiWidth() / 2 + 90), 0.0F, 0.0F);
 
-                renderArmor(graphics, 39);
+                renderArmor(graphics, 39, 0);
             }
             case AIR ->
             {
-                AIR_LEVEL_PUSHED.enable();
+                if (CandyTweak.HIDE_HUNGER_BAR.get())
+                {
+                    AIR_LEVEL_PUSHED.enable();
 
-                graphics.pose().pushPose();
-                graphics.pose().translate((float) (GuiUtil.getGuiWidth() / 2 - 100), 0.0F, 0.0F);
+                    graphics.pose().pushPose();
+                    graphics.pose().translate((float) (GuiUtil.getGuiWidth() / 2 - 100), 0.0F, 0.0F);
 
-                renderAir(graphics, getHeightOffsetFromHearts());
+                    renderAir(graphics, getHeightOffsetFromHearts(), 0);
+                }
+                else if (StaminaRenderer.isVisible())
+                {
+                    AIR_LEVEL_PUSHED.enable();
+
+                    graphics.pose().pushPose();
+                    graphics.pose().translate(0.0F, -10.0F, 0.0F);
+                }
+            }
+            case STAMINA ->
+            {
+                if (AIR_LEVEL_PUSHED.ifEnabledThenDisable())
+                    graphics.pose().popPose();
+
+                StaminaRenderer.render(graphics, getHeightOffsetForStamina());
             }
         }
     }
@@ -239,25 +280,26 @@ public abstract class HudHelper
      *
      * @param graphics     The {@link GuiGraphics} instance.
      * @param offsetHeight The offset height that will be subtracted from the bottom of the scaled window height.
+     * @param offsetRight  The offset from the right side of the screen.
      */
-    public static void renderArmor(GuiGraphics graphics, int offsetHeight)
+    public static void renderArmor(GuiGraphics graphics, int offsetHeight, int offsetRight)
     {
+        int right = offsetRight;
         int armor = NullableResult.getOrElse(getPlayer(), 0, Player::getArmorValue);
         int top = GuiUtil.getGuiHeight() - offsetHeight;
-        int left = 0;
 
         RenderSystem.enableBlend();
 
         for (int i = 1; armor > 0 && i < 20; i += 2)
         {
-            left -= 8;
+            right -= 8;
 
             if (i == armor)
-                renderInverseHalfArmor(graphics, left, top);
+                renderInverseHalfArmor(graphics, right, top);
             else if (i < armor)
-                graphics.blitSprite(GuiAccess.NT$ARMOR_FULL_SPRITE(), left, top, 9, 9);
+                graphics.blitSprite(GuiAccess.NT$ARMOR_FULL_SPRITE(), right, top, 9, 9);
             else
-                graphics.blitSprite(GuiAccess.NT$ARMOR_EMPTY_SPRITE(), left, top, 9, 9);
+                graphics.blitSprite(GuiAccess.NT$ARMOR_EMPTY_SPRITE(), right, top, 9, 9);
         }
 
         RenderSystem.disableBlend();
@@ -268,12 +310,12 @@ public abstract class HudHelper
      *
      * @param graphics     The {@link GuiGraphics} instance.
      * @param offsetHeight The offset height that will be subtracted from the bottom of the scaled window height.
+     * @param offsetLeft   The offset from the left side of the screen.
      */
-    public static void renderAir(GuiGraphics graphics, int offsetHeight)
+    public static void renderAir(GuiGraphics graphics, int offsetHeight, int offsetLeft)
     {
         int air = NullableResult.getOrElse(getPlayer(), 0, Player::getAirSupply);
-        int top = GuiUtil.getGuiHeight() - offsetHeight + 1;
-        int left = 0;
+        int top = GuiUtil.getGuiHeight() - offsetHeight;
 
         int full = Mth.ceil((double) (air - 2) * 10.0D / 300.0D);
         int partial = Mth.ceil((double) air * 10.0D / 300.0D) - full;
@@ -281,7 +323,7 @@ public abstract class HudHelper
         RenderSystem.enableBlend();
 
         for (int i = 0; i < full + partial; ++i)
-            graphics.blitSprite(i < full ? GuiAccess.NT$AIR_SPRITE() : GuiAccess.NT$AIR_BURSTING_SPRITE(), left + i * 8 + 9, top, 9, 9);
+            graphics.blitSprite(i < full ? GuiAccess.NT$AIR_SPRITE() : GuiAccess.NT$AIR_BURSTING_SPRITE(), offsetLeft + i * 8 + 9, top, 9, 9);
 
         RenderSystem.disableBlend();
     }

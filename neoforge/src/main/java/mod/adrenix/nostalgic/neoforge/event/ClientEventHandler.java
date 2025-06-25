@@ -4,20 +4,23 @@ import mod.adrenix.nostalgic.NostalgicTweaks;
 import mod.adrenix.nostalgic.helper.candy.level.fog.OverworldFogRenderer;
 import mod.adrenix.nostalgic.helper.candy.level.fog.VoidFogRenderer;
 import mod.adrenix.nostalgic.helper.candy.level.fog.WaterFogRenderer;
+import mod.adrenix.nostalgic.helper.gameplay.InteractionHelper;
 import mod.adrenix.nostalgic.tweak.config.CandyTweak;
 import mod.adrenix.nostalgic.tweak.config.ModTweak;
-import mod.adrenix.nostalgic.util.client.gui.GuiUtil;
-import mod.adrenix.nostalgic.util.common.data.FlagHolder;
 import mod.adrenix.nostalgic.util.common.data.NullableResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -29,11 +32,6 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 )
 public abstract class ClientEventHandler
 {
-    /* State Holders */
-
-    private static final FlagHolder ARMOR_LEVEL_PUSHED = FlagHolder.off();
-    private static final FlagHolder AIR_LEVEL_PUSHED = FlagHolder.off();
-
     /**
      * Prevents various gui overlays from rendering depending on tweak context.
      *
@@ -43,7 +41,6 @@ public abstract class ClientEventHandler
     public static void setupHighestGuiOverlayPre(RenderGuiLayerEvent.Pre event)
     {
         ResourceLocation overlay = event.getName();
-        GuiGraphics graphics = event.getGuiGraphics();
         LocalPlayer player = Minecraft.getInstance().player;
         Gui gui = Minecraft.getInstance().gui;
 
@@ -76,37 +73,10 @@ public abstract class ClientEventHandler
             event.setCanceled(true);
 
         if (overlay == VanillaGuiLayers.ARMOR_LEVEL && isFoodOff)
-        {
-            graphics.pose().pushPose();
-            graphics.pose().translate((float) (GuiUtil.getGuiWidth() / 2 + 90), 0.0F, 0.0F);
-
-            ARMOR_LEVEL_PUSHED.enable();
-        }
+            event.setCanceled(true);
 
         if (overlay == VanillaGuiLayers.AIR_LEVEL && isFoodOff)
-        {
-            graphics.pose().pushPose();
-            graphics.pose().translate((float) (GuiUtil.getGuiWidth() / 2 - 100), 0.0F, 0.0F);
-
-            AIR_LEVEL_PUSHED.enable();
-        }
-    }
-
-    /**
-     * Handles the tear-down of previous graphics changes during the overlay pre-phase.
-     *
-     * @param event The {@link RenderGuiLayerEvent.Post} event instance.
-     */
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void setupGuiOverlayPost(RenderGuiLayerEvent.Post event)
-    {
-        GuiGraphics graphics = event.getGuiGraphics();
-
-        if (ARMOR_LEVEL_PUSHED.ifEnabledThenDisable())
-            graphics.pose().popPose();
-
-        if (AIR_LEVEL_PUSHED.ifEnabledThenDisable())
-            graphics.pose().popPose();
+            event.setCanceled(true);
     }
 
     /**
@@ -146,5 +116,33 @@ public abstract class ClientEventHandler
 
         OverworldFogRenderer.setupColor(event.getCamera(), event::getRed, event::getGreen, event::getBlue, event::setRed, event::setGreen, event::setBlue);
         VoidFogRenderer.setupColor(event.getCamera(), event::getRed, event::getGreen, event::getBlue, event::setRed, event::setGreen, event::setBlue);
+    }
+
+    /**
+     * Prevents the use of specific items based on tweak context. On servers with the mod installed, the interaction
+     * listener will prevent connected players from using items where needed.
+     *
+     * @param event The {@link InputEvent.InteractionKeyMappingTriggered} event instance.
+     */
+    @SubscribeEvent
+    public static void onUseItem(InputEvent.InteractionKeyMappingTriggered event)
+    {
+        LocalPlayer player = Minecraft.getInstance().player;
+        HitResult hitResult = Minecraft.getInstance().hitResult;
+
+        if (player == null || hitResult == null || !event.isUseItem())
+            return;
+
+        if (hitResult instanceof BlockHitResult blockHitResult)
+        {
+            Item itemInHand = player.getItemInHand(event.getHand()).getItem();
+            BlockState blockState = player.level().getBlockState(blockHitResult.getBlockPos());
+
+            if (InteractionHelper.shouldNotUseItem(itemInHand, blockState))
+            {
+                event.setCanceled(true);
+                event.setSwingHand(false);
+            }
+        }
     }
 }

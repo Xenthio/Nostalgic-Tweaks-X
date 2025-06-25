@@ -5,6 +5,8 @@
   "client": [
     "AbstractContainerScreenAccess",
     "AbstractWidgetAccess",
+    "BlockBehaviourAccess",
+    "BodyRotationControlAccess",
     "DebugScreenOverlayAccess",
     "FpsDebugChartAccess",
     "GuiAccess",
@@ -20,10 +22,12 @@
     "WorldSelectionListAccess"
   ],
   "mixins": [
+    "AxeItemAccess",
     "EntityAccess",
     "FireBlockAccess",
     "LivingEntityAccess",
     "PlayerAccess",
-    "SheepAccess"
+    "SheepAccess",
+    "ShovelItemAccess"
   ]
 }

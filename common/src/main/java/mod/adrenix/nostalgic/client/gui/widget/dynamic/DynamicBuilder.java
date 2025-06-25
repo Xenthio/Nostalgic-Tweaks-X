@@ -59,7 +59,7 @@ public abstract class DynamicBuilder<Builder extends DynamicBuilder<Builder, Wid
     protected final UniqueArrayList<Object> attachedData = new UniqueArrayList<>();
 
     /**
-     * Add data to this widget.
+     * Add data to this widget. You can check if a widget has the data by using {@link DynamicWidget#has(Object)}.
      *
      * @param data A data {@link Object} to attach to this widget.
      */
@@ -130,6 +130,19 @@ public abstract class DynamicBuilder<Builder extends DynamicBuilder<Builder, Wid
     public Builder beforeSync(Runnable updater)
     {
         return this.beforeSync(widget -> updater.run());
+    }
+
+    /**
+     * Consider this widget as hovered or focused when any of the given widgets are also hovered or focused.
+     *
+     * @param syncTo A varargs list of {@link DynamicWidget} to sync to.
+     */
+    @PublicAPI
+    public Builder hoverOrFocusSync(DynamicWidget<?, ?>... syncTo)
+    {
+        this.hoverSync.addAll(List.of(syncTo));
+
+        return this.self();
     }
 
     /**
@@ -230,6 +243,7 @@ public abstract class DynamicBuilder<Builder extends DynamicBuilder<Builder, Wid
     @Nullable protected ToFloatFunction<Widget> scaleWidth = null;
     @Nullable protected ToFloatFunction<Widget> scaleHeight = null;
     @Nullable protected RelativeLayout relativeLayout = null;
+    protected final UniqueArrayList<DynamicWidget<?, ?>> hoverSync = new UniqueArrayList<>();
     protected final UniqueArrayList<DynamicWidget<?, ?>> followers = new UniqueArrayList<>();
     protected boolean forceRelativeX = false;
     protected boolean forceRelativeY = false;

@@ -7,10 +7,20 @@ public interface Icons
     TextureIcon BUG_COLOR = TextureIcon.fromSprite("bug_color", 12);
     TextureIcon BUG_EXTRA = TextureIcon.fromSprite("bug_extra", 12);
     TextureIcon DEBUG_CHART = TextureIcon.fromSprite("debug_chart", 12);
+    TextureIcon COLOR_WHEEL = TextureIcon.fromSprite("color_wheel", 12);
     TextureIcon UNDO = TextureIcon.fromSprite("undo", 12);
     TextureIcon UNDO_HOVER = TextureIcon.fromSprite("undo_hover", 12);
     TextureIcon REDO_HOVER = TextureIcon.fromSprite("redo_hover", 12);
     TextureIcon REDO = TextureIcon.fromSprite("redo", 12);
+    TextureIcon MOVE = TextureIcon.fromSprite("move", 12);
+    TextureIcon HELP = TextureIcon.fromSprite("help", 12);
+    TextureIcon HELP_HOVER = TextureIcon.fromSprite("help_hover", 12);
+    TextureIcon SOUND = TextureIcon.fromSprite("sound", 12);
+    TextureIcon SOUND_OFF = TextureIcon.fromSprite("sound_off", 12);
+    TextureIcon ERASER = TextureIcon.fromSprite("eraser", 12);
+    TextureIcon SELECTOR = TextureIcon.fromSprite("selector", 12);
+    TextureIcon UP_ARROW = TextureIcon.fromSprite("up_arrow", 12);
+    TextureIcon RIGHT_ARROW = TextureIcon.fromSprite("right_arrow", 12);
     TextureIcon SAVE_FLOPPY = TextureIcon.fromSprite("save_floppy", 12, 1.1F);
     TextureIcon GREEN_CHECK = TextureIcon.fromSprite("green_check", 13, 12, 1.3F);
     TextureIcon CHECKBOX = TextureIcon.fromSprite("checkbox", 12, 1.3F);
@@ -71,6 +81,7 @@ public interface Icons
     TextureIcon BREAK_WOOD = TextureIcon.fromSprite("break_wood", 12);
     TextureIcon EXPERIENCE = TextureIcon.fromSprite("experience", 12);
     TextureIcon MUSIC_NOTES = TextureIcon.fromSprite("music_notes", 12);
+    TextureIcon MUSIC_SINGLE = TextureIcon.fromSprite("music_single", 12);
     TextureIcon BRAIN = TextureIcon.fromSprite("brain", 12);
     TextureIcon FIRE = TextureIcon.fromSprite("fire", 12);
     TextureIcon CUSTOM_HITBOX = TextureIcon.fromSprite("custom_hitbox", 12);
@@ -119,7 +130,7 @@ public interface Icons
     TextureIcon THREE_DOTS = TextureIcon.fromSprite("three_dots", 9);
     TextureIcon THREE_DOTS_HOVER = TextureIcon.fromSprite("three_dots_hover", 9);
     TextureIcon THREE_DOTS_OFF = TextureIcon.fromSprite("three_dots_off", 9);
-    TextureIcon COLOR_WHEEL = TextureIcon.fromSprite("color_wheel", 9);
+    TextureIcon SMALL_COLOR_WHEEL = TextureIcon.fromSprite("small_color_wheel", 9);
     TextureIcon SMALL_RED_WARNING = TextureIcon.fromSprite("small_red_warning", 9);
     TextureIcon SMALL_WARNING = TextureIcon.fromSprite("small_warning", 9);
     TextureIcon SMALL_SEARCH = TextureIcon.fromSprite("small_search", 9);
@@ -143,5 +154,19 @@ public interface Icons
     TextureIcon SMALL_PLAY = TextureIcon.fromSprite("small_play", 11);
     TextureIcon SMALL_PLAY_HOVER = TextureIcon.fromSprite("small_play_hover", 11);
     TextureIcon SMALL_PLAY_OFF = TextureIcon.fromSprite("small_play_off", 11);
+    TextureIcon SMALL_DOWN_ARROW = TextureIcon.fromSprite("small_down_arrow", 11);
+    TextureIcon SMALL_DOWN_ARROW_HOVER = TextureIcon.fromSprite("small_down_arrow_hover", 11);
+    TextureIcon SMALL_DOWN_ARROW_OFF = TextureIcon.fromSprite("small_down_arrow_off", 11);
+    TextureIcon SMALL_UP_ARROW = TextureIcon.fromSprite("small_up_arrow", 11);
+    TextureIcon SMALL_UP_ARROW_HOVER = TextureIcon.fromSprite("small_up_arrow_hover", 11);
+    TextureIcon SMALL_UP_ARROW_OFF = TextureIcon.fromSprite("small_up_arrow_off", 11);
+    TextureIcon SMALL_UNDO = TextureIcon.fromSprite("small_undo", 11);
+    TextureIcon SMALL_UNDO_HOVER = TextureIcon.fromSprite("small_undo_hover", 11);
+    TextureIcon SMALL_UNDO_OFF = TextureIcon.fromSprite("small_undo_off", 11);
+    TextureIcon SMALL_REDO = TextureIcon.fromSprite("small_redo", 11);
+    TextureIcon SMALL_REDO_HOVER = TextureIcon.fromSprite("small_redo_hover", 11);
+    TextureIcon SMALL_REDO_OFF = TextureIcon.fromSprite("small_redo_off", 11);
     TextureIcon STEVE = TextureIcon.fromSprite("steve", 8);
+    TextureIcon HUD_STAMINA = TextureIcon.fromSprite(ModSprite.STAMINA_LEVEL, 9);
+    TextureIcon HUD_STAMINA_RECHARGE = TextureIcon.fromSprite(ModSprite.STAMINA_RECHARGE, 9);
 }

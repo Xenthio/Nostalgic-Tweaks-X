@@ -37,7 +37,8 @@ public class ColorSlider extends AbstractSlider<ColorSliderBuilder, ColorSlider>
 
         this.color = builder.color;
         this.element = builder.element;
-        this.handleWidth = 3;
+
+        this.builder.handleWidth(3);
 
         builder.backgroundRenderer(this::renderBackground);
         builder.handleRenderer(this::renderHandle);
@@ -70,7 +71,7 @@ public class ColorSlider extends AbstractSlider<ColorSliderBuilder, ColorSlider>
 
         RenderUtil.beginBatching();
         RenderUtil.outline(graphics, this.x, this.y, this.width, this.height, this.isActive() ? outline : 0xFF333333);
-        RenderUtil.outline(graphics, this.getHandleX(), this.y, this.handleWidth, this.height, this.isActive() ? handle : 0xFF666666);
+        RenderUtil.outline(graphics, this.getHandleX(), this.y, this.getHandleWidth(), this.height, this.isActive() ? handle : 0xFF666666);
         RenderUtil.endBatching();
     }
 
@@ -150,7 +151,7 @@ public class ColorSlider extends AbstractSlider<ColorSliderBuilder, ColorSlider>
                         RenderUtil.fill(graphics, i, (row - 1) * size, i + size, row * size, MathUtil.isEven(i) ? primary : secondary);
                 }
 
-                RenderUtil.fromLeftGradient(graphics, 0, 0, innerW, innerH, Color.TRANSPARENT.get(), this.color.getOpaque());
+                RenderUtil.fromLeftGradient(graphics, 0, 0, innerW, innerH, this.color.fromAlpha(0.0D), this.color.fromAlpha(1.0D));
             }
         }
 

@@ -32,7 +32,6 @@ public abstract class AbstractSlider<Builder extends AbstractSliderMaker<Builder
     protected double value;
     protected Component title;
     protected boolean dragging;
-    protected int handleWidth = 8;
     protected final SimpleTimer scrollTimer;
     protected final Animation scrollAnimator;
 
@@ -94,6 +93,15 @@ public abstract class AbstractSlider<Builder extends AbstractSliderMaker<Builder
     }
 
     /**
+     * @return Whether the slider is currently being dragged.
+     */
+    @PublicAPI
+    public boolean isDragging()
+    {
+        return this.dragging;
+    }
+
+    /**
      * Set the value of the slider. The given value will be clamped if it is out-of-bounds.
      *
      * @param value The new normalized value [0.0-1.0] of the slider.
@@ -121,7 +129,7 @@ public abstract class AbstractSlider<Builder extends AbstractSliderMaker<Builder
      */
     protected void setFromMouse(double mouseX)
     {
-        this.setNormalizedValue((mouseX - (this.getX() + this.handleWidth / 2.0D)) / (double) (this.width - this.handleWidth));
+        this.setNormalizedValue((mouseX - (this.getX() + this.builder.handleWidth / 2.0D)) / (double) (this.width - this.builder.handleWidth));
     }
 
     /**
@@ -188,7 +196,16 @@ public abstract class AbstractSlider<Builder extends AbstractSliderMaker<Builder
     @PublicAPI
     public int getHandleX()
     {
-        return this.x + (int) (this.value * (double) (this.width - this.handleWidth));
+        return this.x + (int) (this.value * (double) (this.width - this.builder.handleWidth));
+    }
+
+    /**
+     * @return Get the slider's handle width.
+     */
+    @PublicAPI
+    public int getHandleWidth()
+    {
+        return this.builder.handleWidth;
     }
 
     /**
@@ -247,7 +264,7 @@ public abstract class AbstractSlider<Builder extends AbstractSliderMaker<Builder
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button)
     {
-        if (this.dragging && this.isValidClick(mouseX, mouseY, button))
+        if (this.dragging)
         {
             this.dragging = false;
 
@@ -256,8 +273,6 @@ public abstract class AbstractSlider<Builder extends AbstractSliderMaker<Builder
 
             return true;
         }
-        else
-            this.dragging = false;
 
         return false;
     }
@@ -319,10 +334,70 @@ public abstract class AbstractSlider<Builder extends AbstractSliderMaker<Builder
 
         return switch (keyCode)
         {
-            case InputConstants.KEY_D -> this.mouseScrolled(this.x, this.y, 0.0D, 1.0D);
-            case InputConstants.KEY_A -> this.mouseScrolled(this.x, this.y, 0.0D, -1.0D);
+            case InputConstants.KEY_D -> this.incrementIfPossible();
+            case InputConstants.KEY_A -> this.decrementIfPossible();
             default -> false;
         };
+    }
+
+    /**
+     * Increment the slider up by one interval if an interval is defined. This does <b color=red>not</b> check if the
+     * slider is invisible or inactive, {@link #incrementIfPossible()}.
+     */
+    @PublicAPI
+    public void increment()
+    {
+        if (this.builder.interval != null)
+            this.setValue(this.getValue() + (this.builder.interval.get().doubleValue()));
+    }
+
+    /**
+     * Decrement the slider down by one interval if an interval is defined. This does <b color=red>not</b> check if the
+     * slider is invisible or inactive, {@link #decrementIfPossible()}.
+     */
+    @PublicAPI
+    public void decrement()
+    {
+        if (this.builder.interval != null)
+            this.setValue(this.getValue() + (-1.0D * this.builder.interval.get().doubleValue()));
+    }
+
+    /**
+     * Increment the slider up by one interval if an interval is defined, the widget is visible, and the widget is
+     * active. This does not check if the widget is focused. This must be checked beforehand if this behavior is
+     * desired.
+     *
+     * @return Whether the slider was incremented by one interval.
+     * @see #increment()
+     */
+    @PublicAPI
+    public boolean incrementIfPossible()
+    {
+        if (this.isInvisible() || this.isInactive())
+            return false;
+
+        this.increment();
+
+        return true;
+    }
+
+    /**
+     * Decrement the slider down by one interval if an interval is defined, the widget is visible, and the widget is
+     * active. This does not check if the widget is focused. This must be checked beforehand if this behavior is
+     * desired.
+     *
+     * @return Whether the slider was decremented by one interval.
+     * @see #decrement()
+     */
+    @PublicAPI
+    public boolean decrementIfPossible()
+    {
+        if (this.isInvisible() || this.isInactive())
+            return false;
+
+        this.decrement();
+
+        return true;
     }
 
     /**

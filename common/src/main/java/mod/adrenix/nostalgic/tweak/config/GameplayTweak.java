@@ -2,9 +2,8 @@ package mod.adrenix.nostalgic.tweak.config;
 
 import mod.adrenix.nostalgic.tweak.TweakAlert;
 import mod.adrenix.nostalgic.tweak.container.group.GameplayGroup;
-import mod.adrenix.nostalgic.tweak.factory.TweakFlag;
-import mod.adrenix.nostalgic.tweak.factory.TweakItemMap;
-import mod.adrenix.nostalgic.tweak.factory.TweakNumber;
+import mod.adrenix.nostalgic.tweak.enums.StaminaRegain;
+import mod.adrenix.nostalgic.tweak.factory.*;
 import mod.adrenix.nostalgic.tweak.gui.SliderType;
 import mod.adrenix.nostalgic.tweak.listing.DefaultListing;
 import mod.adrenix.nostalgic.tweak.listing.ItemMap;
@@ -22,22 +21,24 @@ public interface GameplayTweak
 
     // Mob AI
 
-    TweakFlag DISABLE_ANIMAL_TEMPTING = TweakFlag.server(false, GameplayGroup.MOB_AI).newForUpdate().build();
-    TweakFlag DISABLE_ANIMAL_PANIC = TweakFlag.server(true, GameplayGroup.MOB_AI).newForUpdate().build();
-    TweakFlag DISABLE_MONSTER_AVOID_SUN = TweakFlag.server(true, GameplayGroup.MOB_AI).newForUpdate().build();
+    TweakFlag DISABLE_ANIMAL_TEMPTING = TweakFlag.server(false, GameplayGroup.MOB_AI).build();
+    TweakFlag DISABLE_ANIMAL_PANIC = TweakFlag.server(true, GameplayGroup.MOB_AI).build();
+    TweakFlag DISABLE_MONSTER_AVOID_SUN = TweakFlag.server(true, GameplayGroup.MOB_AI).build();
+    TweakFlag DISABLE_SKELETON_STRAFING = TweakFlag.server(false, GameplayGroup.MOB_AI).newForUpdate().build();
+    TweakFlag OLD_CREEPER_STRAFE_ON_SWELL = TweakFlag.server(true, GameplayGroup.MOB_AI).newForUpdate().build();
 
     // Monsters
 
-    TweakFlag DISABLE_MONSTER_ITEM_PICKUP = TweakFlag.server(false, GameplayGroup.MOB_MONSTER).newForUpdate().build();
+    TweakFlag DISABLE_MONSTER_ITEM_PICKUP = TweakFlag.server(false, GameplayGroup.MOB_MONSTER).build();
 
     // Monster Spawning
 
-    TweakFlag DISABLE_BABY_ZOMBIE_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).newForUpdate().build();
-    TweakFlag DISABLE_BABY_PIGLIN_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).newForUpdate().build();
-    TweakFlag DISABLE_MONSTER_ITEM_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).newForUpdate().build();
-    TweakFlag DISABLE_MONSTER_ARMOR_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).newForUpdate().build();
-    TweakFlag DISABLE_MONSTER_ENCHANT_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).newForUpdate().build();
-    TweakFlag PIGLIN_ONLY_GOLD_SWORD_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).newForUpdate().build();
+    TweakFlag DISABLE_BABY_ZOMBIE_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).build();
+    TweakFlag DISABLE_BABY_PIGLIN_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).build();
+    TweakFlag DISABLE_MONSTER_ITEM_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).build();
+    TweakFlag DISABLE_MONSTER_ARMOR_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).build();
+    TweakFlag DISABLE_MONSTER_ENCHANT_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).build();
+    TweakFlag PIGLIN_ONLY_GOLD_SWORD_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_MONSTER_SPAWN).build();
     TweakNumber<Integer> MONSTER_SPAWN_CAP = TweakNumber.server(90, GameplayGroup.MOB_MONSTER_SPAWN)
         .slider(Lang.Slider.CAP, 0, 100)
         .whenDisabled(MobCategory.MONSTER.getMaxInstancesPerChunk())
@@ -45,18 +46,17 @@ public interface GameplayTweak
 
     // Animal Spawning
 
-    TweakFlag DISABLE_ANIMAL_BREEDING = TweakFlag.server(false, GameplayGroup.MOB_ANIMAL_SPAWN).newForUpdate().build();
-    TweakFlag DISABLE_BABY_ANIMAL_SPAWNING = TweakFlag.server(false, GameplayGroup.MOB_ANIMAL_SPAWN).newForUpdate().build();
-    TweakFlag OLD_ANIMAL_SPAWNING = TweakFlag.server(false, GameplayGroup.MOB_ANIMAL_SPAWN).warningTag().build();
-    TweakNumber<Integer> ANIMAL_SPAWN_CAP = TweakNumber.server(20, GameplayGroup.MOB_ANIMAL_SPAWN)
-        .slider(Lang.Slider.CAP, 0, 100)
-        .whenDisabled(MobCategory.CREATURE.getMaxInstancesPerChunk())
-        .build();
+    TweakFlag DISABLE_ANIMAL_BREEDING = TweakFlag.server(false, GameplayGroup.MOB_ANIMAL_SPAWN).build();
+    TweakFlag DISABLE_BABY_ANIMAL_SPAWNING = TweakFlag.server(false, GameplayGroup.MOB_ANIMAL_SPAWN).build();
+    TweakFlag OLD_ANIMAL_SPAWNING = TweakFlag.server(false, GameplayGroup.MOB_ANIMAL_SPAWN).ignoreNetworkCheck().warningTag().build();
+    TweakStringSet OLD_ANIMAL_SPAWN_LIST = TweakStringSet.server(DefaultListing.oldAnimalSpawns(), GameplayGroup.MOB_ANIMAL_SPAWN).ignoreNetworkCheck().build();
+    TweakNumber<Integer> ANIMAL_SPAWN_CAP = TweakNumber.server(15, GameplayGroup.MOB_ANIMAL_SPAWN).slider(Lang.Slider.CAP, 0, 100).build();
+    TweakFlag KEEP_BABY_ANIMAL_WHILE_OLD_SPAWN = TweakFlag.server(false, GameplayGroup.MOB_ANIMAL_SPAWN).ignoreNetworkCheck().build();
 
     // Sheep
 
     TweakFlag DISABLE_SHEEP_EAT_GRASS = TweakFlag.server(true, GameplayGroup.MOB_ANIMAL_SHEEP).build();
-    TweakFlag RANDOM_SHEEP_WOOL_REGEN = TweakFlag.server(true, GameplayGroup.MOB_ANIMAL_SHEEP).newForUpdate().build();
+    TweakFlag RANDOM_SHEEP_WOOL_REGEN = TweakFlag.server(true, GameplayGroup.MOB_ANIMAL_SHEEP).build();
     TweakFlag OLD_SHEEP_PUNCHING = TweakFlag.server(true, GameplayGroup.MOB_ANIMAL_SHEEP).build();
     TweakFlag ONE_WOOL_PUNCH = TweakFlag.server(false, GameplayGroup.MOB_ANIMAL_SHEEP).build();
 
@@ -83,10 +83,10 @@ public interface GameplayTweak
 
     // Combat Blocking
 
-    TweakFlag BLOCK_WITH_SWORD_ON_SHIELD = TweakFlag.client(true, GameplayGroup.COMBAT_BLOCKING).newForUpdate().build();
-    TweakFlag OLD_SWORD_BLOCKING = TweakFlag.server(true, GameplayGroup.COMBAT_BLOCKING).noSSO().newForUpdate().build();
-    TweakFlag ATTACK_WHILE_SWORD_BLOCKING = TweakFlag.server(true, GameplayGroup.COMBAT_BLOCKING).newForUpdate().build();
-    TweakNumber<Integer> SWORD_BLOCK_DAMAGE_REDUCTION = TweakNumber.server(50, GameplayGroup.COMBAT_BLOCKING).newForUpdate().slider(Lang.Slider.PERCENTAGE, 0, 100, "%").build();
+    TweakFlag BLOCK_WITH_SWORD_ON_SHIELD = TweakFlag.client(true, GameplayGroup.COMBAT_BLOCKING).build();
+    TweakFlag OLD_SWORD_BLOCKING = TweakFlag.server(true, GameplayGroup.COMBAT_BLOCKING).noSSO().build();
+    TweakFlag ATTACK_WHILE_SWORD_BLOCKING = TweakFlag.server(true, GameplayGroup.COMBAT_BLOCKING).build();
+    TweakNumber<Integer> SWORD_BLOCK_DAMAGE_REDUCTION = TweakNumber.server(50, GameplayGroup.COMBAT_BLOCKING).slider(Lang.Slider.PERCENTAGE, 0, 100, "%").build();
 
     // Combat
 
@@ -106,19 +106,40 @@ public interface GameplayTweak
 
     TweakFlag DISABLE_ORB_SPAWN = TweakFlag.server(false, GameplayGroup.EXPERIENCE_ORB).build();
     TweakFlag DISABLE_ORB_RENDERING = TweakFlag.client(false, GameplayGroup.EXPERIENCE_ORB).build();
+    TweakFlag IMMEDIATE_EXPERIENCE_PICKUP = TweakFlag.server(false, GameplayGroup.EXPERIENCE_ORB).build();
 
     // Experience Blocks
 
     TweakFlag DISABLE_ANVIL = TweakFlag.server(false, GameplayGroup.EXPERIENCE_BLOCK).build();
     TweakFlag DISABLE_ENCHANT_TABLE = TweakFlag.server(false, GameplayGroup.EXPERIENCE_BLOCK).build();
 
+    // Stamina Mechanics
+
+    TweakFlag STAMINA_SPRINT = TweakFlag.dynamic(false, GameplayGroup.STAMINA).newForUpdate().noSSO().alert(TweakAlert.STAMINA_SPRINTING_CONFLICT).build();
+    TweakFlag STAMINA_INFINITE_PEACEFUL = TweakFlag.dynamic(false, GameplayGroup.STAMINA).newForUpdate().build();
+    TweakEnum<StaminaRegain> STAMINA_REGAIN_WHEN_MOVING = TweakEnum.dynamic(StaminaRegain.NORMAL, GameplayGroup.STAMINA).newForUpdate().build();
+    TweakNumber<Integer> STAMINA_DURATION = TweakNumber.dynamic(5, GameplayGroup.STAMINA).newForUpdate().slider(Lang.Slider.SECONDS, 1, 60).build();
+    TweakNumber<Integer> STAMINA_RECHARGE = TweakNumber.dynamic(7, GameplayGroup.STAMINA).newForUpdate().slider(Lang.Slider.SECONDS, 1, 60).build();
+    TweakNumber<Integer> STAMINA_COOLDOWN = TweakNumber.dynamic(0, GameplayGroup.STAMINA).newForUpdate().slider(Lang.Slider.SECONDS, 0, 60).build();
+
+    // Stamina Effects
+
+    TweakFlag STAMINA_SATURATION_EFFECT = TweakFlag.dynamic(false, GameplayGroup.STAMINA_EFFECTS).newForUpdate().build();
+    TweakFlag STAMINA_HUNGER_EFFECT = TweakFlag.dynamic(false, GameplayGroup.STAMINA_EFFECTS).newForUpdate().build();
+
     // Player Mechanics
 
-    TweakFlag OLD_NIGHTMARES = TweakFlag.server(true, GameplayGroup.MECHANICS_PLAYER).newForUpdate().build();
+    TweakFlag OLD_NIGHTMARES = TweakFlag.server(true, GameplayGroup.MECHANICS_PLAYER).build();
     TweakFlag DISABLE_SPRINT = TweakFlag.dynamic(false, GameplayGroup.MECHANICS_PLAYER).noSSO().build();
     TweakFlag LEFT_CLICK_DOOR = TweakFlag.server(false, GameplayGroup.MECHANICS_PLAYER).build();
     TweakFlag LEFT_CLICK_LEVER = TweakFlag.server(false, GameplayGroup.MECHANICS_PLAYER).build();
     TweakFlag LEFT_CLICK_BUTTON = TweakFlag.server(false, GameplayGroup.MECHANICS_PLAYER).build();
+
+    // Fishing Mechanics
+
+    TweakFlag OLD_FISHING_LOOT = TweakFlag.server(false, GameplayGroup.MECHANICS_FISHING).newForUpdate().build();
+    TweakFlag OLD_FISHING_LURING = TweakFlag.server(true, GameplayGroup.MECHANICS_FISHING).newForUpdate().build();
+    TweakFlag OLD_FISHING_CASTING = TweakFlag.dynamic(true, GameplayGroup.MECHANICS_FISHING).newForUpdate().build();
 
     // Farming Mechanics
 
@@ -137,21 +158,22 @@ public interface GameplayTweak
 
     // Minecart Mechanics
 
-    TweakFlag CART_BOOSTING = TweakFlag.server(false, GameplayGroup.MECHANICS_CART).newForUpdate().build();
-    TweakFlag CART_RIDER_TURNING = TweakFlag.client(true, GameplayGroup.MECHANICS_CART).newForUpdate().build();
-    TweakFlag CART_SAFE_RIDER_TURNING = TweakFlag.client(true, GameplayGroup.MECHANICS_CART).newForUpdate().warningTag().whenDisabled(true).build();
+    TweakFlag CART_BOOSTING = TweakFlag.server(false, GameplayGroup.MECHANICS_CART).build();
+    TweakFlag CART_RIDER_TURNING = TweakFlag.client(true, GameplayGroup.MECHANICS_CART).build();
+    TweakFlag CART_SAFE_RIDER_TURNING = TweakFlag.client(true, GameplayGroup.MECHANICS_CART).warningTag().whenDisabled(true).build();
 
     // Boat Mechanics
 
-    TweakFlag DISABLE_BOAT_BUSY_HANDS = TweakFlag.server(true, GameplayGroup.MECHANICS_BOAT).newForUpdate().build();
-    TweakFlag OLD_BOAT_WATER_LIFT = TweakFlag.server(true, GameplayGroup.MECHANICS_BOAT).newForUpdate().build();
-    TweakFlag OLD_BOAT_DROPS = TweakFlag.server(false, GameplayGroup.MECHANICS_BOAT).newForUpdate().build();
+    TweakFlag DISABLE_BOAT_BUSY_HANDS = TweakFlag.server(true, GameplayGroup.MECHANICS_BOAT).build();
+    TweakFlag OLD_BOAT_WATER_LIFT = TweakFlag.server(true, GameplayGroup.MECHANICS_BOAT).build();
+    TweakFlag OLD_BOAT_DROPS = TweakFlag.server(false, GameplayGroup.MECHANICS_BOAT).build();
 
     // Block Mechanics
 
-    TweakFlag PUNCH_TNT_IGNITION = TweakFlag.server(false, GameplayGroup.MECHANICS_BLOCK_TNT).newForUpdate().build();
+    TweakFlag PUNCH_TNT_IGNITION = TweakFlag.server(false, GameplayGroup.MECHANICS_BLOCK_TNT).build();
     TweakFlag DISABLE_BED_BOUNCE = TweakFlag.server(true, GameplayGroup.MECHANICS_BLOCK_BED).build();
-    TweakFlag ALWAYS_OPEN_CHEST = TweakFlag.server(true, GameplayGroup.MECHANICS_BLOCK_CHEST).newForUpdate().build();
+    TweakFlag ALWAYS_OPEN_CHEST = TweakFlag.server(true, GameplayGroup.MECHANICS_BLOCK_CHEST).build();
+    TweakItemSet SELF_BLOCK_DROPS = TweakItemSet.server(DefaultListing.selfBlockDrops(), GameplayGroup.MECHANICS_BLOCK).newForUpdate().ignoreNetworkCheck().warningTag().build();
 
     // Item Mechanics
 
@@ -161,11 +183,16 @@ public interface GameplayTweak
         .slider(Lang.Slider.STACK, 1, 64)
         .build();
 
+    // Tool Mechanics
+
+    TweakFlag DISABLE_AXE_STRIPPING = TweakFlag.dynamic(false, GameplayGroup.MECHANICS_TOOLS).newForUpdate().build();
+    TweakFlag DISABLE_SHOVEL_PATHING = TweakFlag.dynamic(false, GameplayGroup.MECHANICS_TOOLS).newForUpdate().build();
+
     // Food Health
 
     TweakFlag DISABLE_HUNGER = TweakFlag.server(false, GameplayGroup.HUNGER).build();
     TweakFlag INSTANT_EAT = TweakFlag.server(false, GameplayGroup.HUNGER_FOOD).build();
-    TweakFlag PREVENT_HUNGER_EFFECT = TweakFlag.server(false, GameplayGroup.HUNGER_FOOD).newForUpdate().build();
+    TweakFlag PREVENT_HUNGER_EFFECT = TweakFlag.server(false, GameplayGroup.HUNGER_FOOD).build();
     TweakItemMap<Integer> CUSTOM_FOOD_HEALTH = TweakItemMap.server(DefaultListing.foodHealth(), GameplayGroup.HUNGER_FOOD)
         .icon(Icons.HEART)
         .slider(0, 20, SliderType.HEARTS)

@@ -1,6 +1,7 @@
 package mod.adrenix.nostalgic.tweak.listing;
 
 import mod.adrenix.nostalgic.util.common.world.ItemUtil;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 
@@ -52,7 +53,42 @@ public interface DefaultListing
         return new ItemSet(ItemRule.NO_BLOCKS).startWith(ItemUtil.getKeysFromItems(Items.CROSSBOW));
     }
 
+    static ItemSet old2dExceptions()
+    {
+        return new ItemSet().startWith(ItemUtil.getKeysFromItems(Items.DECORATED_POT));
+    }
+
     // Gameplay Listings
+
+    static StringSet oldAnimalSpawns()
+    {
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+
+        set.add(EntityType.getKey(EntityType.CHICKEN).toString());
+        set.add(EntityType.getKey(EntityType.COW).toString());
+        set.add(EntityType.getKey(EntityType.MOOSHROOM).toString());
+        set.add(EntityType.getKey(EntityType.PIG).toString());
+        set.add(EntityType.getKey(EntityType.SHEEP).toString());
+
+        return new StringSet(ListingSuggestion.CREATURE).startWith(set);
+    }
+
+    static ItemSet selfBlockDrops()
+    {
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+
+        set.add(ItemUtil.getResourceKey(Blocks.IRON_ORE));
+        set.add(ItemUtil.getResourceKey(Blocks.GOLD_ORE));
+        set.add(ItemUtil.getResourceKey(Blocks.COPPER_ORE));
+        set.add(ItemUtil.getResourceKey(Blocks.DEEPSLATE_IRON_ORE));
+        set.add(ItemUtil.getResourceKey(Blocks.DEEPSLATE_GOLD_ORE));
+        set.add(ItemUtil.getResourceKey(Blocks.DEEPSLATE_COPPER_ORE));
+
+        ItemSet itemSet = new ItemSet(ItemRule.ONLY_BLOCKS).startWith(set);
+        itemSet.setDisabled(true);
+
+        return itemSet;
+    }
 
     static ItemMap<Integer> foodHealth()
     {

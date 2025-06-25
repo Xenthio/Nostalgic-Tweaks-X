@@ -109,6 +109,19 @@ public interface DynamicScreen<T extends Screen> extends WidgetHolder, ParentHol
     }
 
     /**
+     * Helper handler method for a keyboard key is released.
+     *
+     * @param keyCode   The key code that was pressed.
+     * @param scanCode  A key scan code.
+     * @param modifiers Key code modifiers.
+     * @return Whether this method handled the event.
+     */
+    default boolean isKeyReleased(int keyCode, int scanCode, int modifiers)
+    {
+        return this.getWidgets().stream().anyMatch(widget -> widget.keyReleased(keyCode, scanCode, modifiers));
+    }
+
+    /**
      * Helper handler method for when the mouse is clicked.
      *
      * @param mouseX The x-position of the mouse.
@@ -173,6 +186,20 @@ public interface DynamicScreen<T extends Screen> extends WidgetHolder, ParentHol
     default boolean isMouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY)
     {
         return this.getWidgets().stream().anyMatch(widget -> widget.mouseDragged(mouseX, mouseY, button, dragX, dragY));
+    }
+
+    /**
+     * Helper handler method for when the mouse scrolls on the screen.
+     *
+     * @param mouseX The current x-position of the mouse.
+     * @param mouseY The current y-position of the mouse.
+     * @param deltaX A positive or negative value that indicates horizontal scroll direction.
+     * @param deltaY A positive or negative value that indicates vertical scroll direction.
+     * @return Whether this method handled the event.
+     */
+    default boolean isMouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY)
+    {
+        return this.getWidgets().stream().anyMatch(widget -> widget.mouseScrolled(mouseX, mouseY, deltaX, deltaY));
     }
 
     /**

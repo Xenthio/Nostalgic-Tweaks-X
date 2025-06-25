@@ -1,11 +1,15 @@
 package mod.adrenix.nostalgic.client.gui.screen.home;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import mod.adrenix.nostalgic.NostalgicTweaks;
 import mod.adrenix.nostalgic.client.gui.screen.WidgetManager;
 import mod.adrenix.nostalgic.client.gui.screen.config.ConfigScreen;
 import mod.adrenix.nostalgic.client.gui.screen.home.overlay.DebugOverlay;
 import mod.adrenix.nostalgic.client.gui.screen.home.overlay.SetupOverlay;
+import mod.adrenix.nostalgic.client.gui.screen.home.overlay.SodiumOverlay;
 import mod.adrenix.nostalgic.client.gui.screen.home.overlay.supporter.SupporterOverlay;
+import mod.adrenix.nostalgic.client.gui.screen.home.overlay.warning.WarningBanner;
+import mod.adrenix.nostalgic.client.gui.screen.home.overlay.warning.WarningOverlay;
 import mod.adrenix.nostalgic.client.gui.screen.packs.PacksListScreen;
 import mod.adrenix.nostalgic.client.gui.widget.button.ButtonWidget;
 import mod.adrenix.nostalgic.client.gui.widget.dynamic.DynamicWidget;
@@ -16,6 +20,7 @@ import mod.adrenix.nostalgic.client.gui.widget.icon.IconWidget;
 import mod.adrenix.nostalgic.client.gui.widget.separator.SeparatorWidget;
 import mod.adrenix.nostalgic.client.gui.widget.text.TextWidget;
 import mod.adrenix.nostalgic.tweak.config.ModTweak;
+import mod.adrenix.nostalgic.util.ModTracker;
 import mod.adrenix.nostalgic.util.client.gui.GuiUtil;
 import mod.adrenix.nostalgic.util.client.gui.LinkUtil;
 import mod.adrenix.nostalgic.util.client.renderer.RenderPass;
@@ -24,6 +29,7 @@ import mod.adrenix.nostalgic.util.common.LinkLocation;
 import mod.adrenix.nostalgic.util.common.asset.Icons;
 import mod.adrenix.nostalgic.util.common.asset.TextureIcon;
 import mod.adrenix.nostalgic.util.common.color.Color;
+import mod.adrenix.nostalgic.util.common.data.IntegerHolder;
 import mod.adrenix.nostalgic.util.common.lang.Lang;
 import mod.adrenix.nostalgic.util.common.math.MathUtil;
 import mod.adrenix.nostalgic.util.common.timer.FlagTimer;
@@ -140,7 +146,8 @@ public class HomeWidgets implements WidgetManager
         /* Panorama */
 
         IconWidget panoramaLast = IconTemplate.button(Icons.SMALL_REWIND, Icons.SMALL_REWIND_HOVER, Icons.SMALL_REWIND_OFF)
-            .pos(1, 1)
+            .posX(38)
+            .fromScreenEndY(3)
             .cannotFocus()
             .tooltip(Lang.Home.PREV_PANORAMA, 35, 500L, TimeUnit.MILLISECONDS)
             .infoTooltip(Lang.Home.PREV_PANORAMA_INFO, 35)
@@ -177,13 +184,21 @@ public class HomeWidgets implements WidgetManager
 
         /* Extras */
 
+        IntegerHolder tabOrder = IntegerHolder.create(4);
+
+        if (ModTracker.SODIUM.isInstalled())
+            tabOrder.getAndIncrement();
+
+        if (WarningOverlay.isActive())
+            tabOrder.getAndIncrement();
+
         ButtonWidget debug = ButtonWidget.create()
             .icon(Icons.BUG)
             .tooltip(Lang.Home.DEBUG, 35, 500L, TimeUnit.MILLISECONDS)
             .infoTooltip(Lang.Tooltip.HOME_DEBUG, 35)
             .fromScreenEndX(1)
             .fromScreenEndY(1)
-            .tabOrderGroup(4)
+            .tabOrderGroup(tabOrder.getAndDecrement())
             .onPress(() -> new DebugOverlay().open())
             .build(this.homeScreen::addWidget);
 
@@ -192,7 +207,7 @@ public class HomeWidgets implements WidgetManager
             .tooltip(Lang.Home.SUPPORTERS, 35, 500L, TimeUnit.MILLISECONDS)
             .infoTooltip(Lang.Tooltip.HOME_SUPPORTERS, 35)
             .leftOf(debug, 1)
-            .tabOrderGroup(3)
+            .tabOrderGroup(tabOrder.getAndDecrement())
             .onPress(() -> new SupporterOverlay().open())
             .build(this.homeScreen::addWidget);
 
@@ -200,25 +215,54 @@ public class HomeWidgets implements WidgetManager
             .visibleIf(heart::isHoveredOrFocused)
             .build(this.homeScreen::addWidget);
 
-        ButtonWidget.create()
-            .icon(Icons.MECHANICAL_TOOLS)
+        ButtonWidget init = ButtonWidget.create()
+            .icon(Icons.SAVE_FLOPPY)
             .tooltip(Lang.Home.INIT_CONFIG, 35, 500L, TimeUnit.MILLISECONDS)
             .infoTooltip(Lang.Tooltip.HOME_INIT, 35)
             .leftOf(heart, 1)
-            .tabOrderGroup(2)
+            .tabOrderGroup(tabOrder.getAndDecrement())
             .onPress(SetupOverlay::open)
             .build(this.homeScreen::addWidget);
 
-        /* Copyright */
+        if (ModTracker.SODIUM.isInstalled())
+        {
+            ButtonWidget.create()
+                .icon(Icons.SODIUM)
+                .tooltip(Lang.Home.SODIUM_TITLE, 35, 500L, TimeUnit.MILLISECONDS)
+                .infoTooltip(Lang.Tooltip.HOME_SODIUM, 35)
+                .leftOf(init, 1)
+                .tabOrderGroup(tabOrder.getAndDecrement())
+                .onPress(SodiumOverlay::open)
+                .build(this.homeScreen::addWidget);
+        }
 
-        TextWidget.create("Made by Adrenix\nMMPL - 2.0.3-Modified © 2024")
-            .onPress(LinkUtil.onPress(LinkLocation.LICENSE))
+        if (WarningOverlay.isActive())
+        {
+            ButtonWidget.create()
+                .icon(Icons.WARNING)
+                .tooltip(Lang.Home.WARNING_OVERLAY, 35, 500L, TimeUnit.MILLISECONDS)
+                .infoTooltip(Lang.Tooltip.HOME_WARNING, 35)
+                .tabOrderGroup(tabOrder.getAndDecrement())
+                .onPress(WarningOverlay::open)
+                .leftOf(this.homeScreen.getWidgets().getLast(), 1)
+                .build(this.homeScreen::addWidget);
+        }
+
+        WarningBanner.setupIfNeeded(this.homeScreen);
+
+        /* Mod Information */
+
+        String version = NostalgicTweaks.getTinyVersion();
+        String beta = NostalgicTweaks.getBetaVersion();
+
+        TextWidget.create("Made by Adrenix\n" + "Version: v" + version + (beta.isEmpty() ? "" : "-" + beta))
+            .onPress(LinkUtil.onPress(LinkLocation.GITHUB))
             .color(Color.fromFormatting(ChatFormatting.GRAY))
             .useTextWidth()
             .centerAligned()
             .centerInScreenX()
             .fromScreenEndY(1)
-            .tabOrderGroup(1)
+            .tabOrderGroup(tabOrder.getAndDecrement())
             .build(this.homeScreen::addWidget);
     }
 

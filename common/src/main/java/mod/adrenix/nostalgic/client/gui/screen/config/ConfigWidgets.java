@@ -1,6 +1,7 @@
 package mod.adrenix.nostalgic.client.gui.screen.config;
 
 import mod.adrenix.nostalgic.client.gui.screen.WidgetManager;
+import mod.adrenix.nostalgic.client.gui.screen.config.overlay.CategoryFilter;
 import mod.adrenix.nostalgic.client.gui.screen.config.overlay.manage.ManageOverlay;
 import mod.adrenix.nostalgic.client.gui.screen.config.widget.list.DescriptionRow;
 import mod.adrenix.nostalgic.client.gui.screen.config.widget.list.GroupRow;
@@ -26,7 +27,6 @@ import mod.adrenix.nostalgic.util.common.color.Color;
 import mod.adrenix.nostalgic.util.common.function.ForEachWithPrevious;
 import mod.adrenix.nostalgic.util.common.lang.Lang;
 import mod.adrenix.nostalgic.util.common.math.MathUtil;
-import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 
@@ -67,6 +67,7 @@ public class ConfigWidgets implements WidgetManager
 
     private ButtonWidget manage;
     private ButtonWidget finish;
+    private ButtonWidget filter;
     private ButtonWidget save;
     private ButtonWidget all;
     private ButtonWidget favorite;
@@ -76,6 +77,7 @@ public class ConfigWidgets implements WidgetManager
     private GenericInput search;
     private SeparatorWidget topSeparator;
     private SeparatorWidget bottomSeparator;
+    private CategoryFilter categoryFilter;
 
     /* Getters */
 
@@ -138,8 +140,6 @@ public class ConfigWidgets implements WidgetManager
     @Override
     public void init()
     {
-        RowProvider.DEFAULT.setPredicate(Tweak::isNotIgnored);
-
         this.rowList = this.createRowList();
         this.save = this.createSaveButton();
         this.tabLeft = this.createTabLeft();
@@ -147,10 +147,12 @@ public class ConfigWidgets implements WidgetManager
         this.manage = this.createManageButton();
         this.favorite = this.createFavoriteButton();
         this.all = this.createAllButton();
+        this.filter = this.createFilterButton();
         this.finish = this.createFinishButton();
         this.search = this.createSearch();
         this.topSeparator = this.createTopSeparator();
         this.bottomSeparator = this.createBottomSeparator();
+        this.categoryFilter = new CategoryFilter(this.filter, this::resetSearchResults);
 
         Container.CATEGORIES.forEach(this::createTabFromCategory);
 
@@ -167,8 +169,9 @@ public class ConfigWidgets implements WidgetManager
         this.manage.setTabOrderGroup(4);
         this.favorite.setTabOrderGroup(5);
         this.all.setTabOrderGroup(6);
-        this.search.setTabOrderGroup(7);
-        this.finish.setTabOrderGroup(8);
+        this.filter.setTabOrderGroup(7);
+        this.search.setTabOrderGroup(8);
+        this.finish.setTabOrderGroup(9);
     }
 
     /**
@@ -253,10 +256,7 @@ public class ConfigWidgets implements WidgetManager
     public void populateRowList()
     {
         if (!this.lastQuery.isEmpty())
-        {
-            RowProvider.DEFAULT.useAndThen(this::updateSearchResults);
             return;
-        }
 
         RowProvider.DEFAULT.useAndThen(this.rowList::clear);
 
@@ -271,10 +271,8 @@ public class ConfigWidgets implements WidgetManager
      */
     private void populateFromFavorite()
     {
-        if (this.lastQuery.isEmpty())
-            this.populateFromPredicate(RowProvider.FAVORITE.useAndGetPredicate());
-        else
-            RowProvider.FAVORITE.useAndThen(this::updateSearchResults);
+        this.stopGivingSearchResults();
+        this.populateFromPredicate(RowProvider.FAVORITE.useAndGetPredicate());
     }
 
     /**
@@ -282,10 +280,8 @@ public class ConfigWidgets implements WidgetManager
      */
     private void populateFromAll()
     {
-        if (this.lastQuery.isEmpty())
-            this.populateFromPredicate(RowProvider.ALL.useAndGetPredicate());
-        else
-            RowProvider.ALL.useAndThen(this::updateSearchResults);
+        this.stopGivingSearchResults();
+        this.populateFromPredicate(RowProvider.ALL.useAndGetPredicate());
     }
 
     /**
@@ -350,8 +346,6 @@ public class ConfigWidgets implements WidgetManager
      */
     private void populateFromSearch(String query)
     {
-        RowProvider.DEFAULT.setPredicate(Tweak::isNotIgnored);
-
         if (this.search == null)
             return;
 
@@ -360,7 +354,10 @@ public class ConfigWidgets implements WidgetManager
             if (ConfigScreen.SCREEN_CACHE.isPushed())
                 ConfigScreen.SCREEN_CACHE.pop(this.configScreen);
             else
-                this.populateFromProvider();
+            {
+                if (this.getQuery().isEmpty() && RowProvider.get() != RowProvider.DEFAULT)
+                    this.populateFromProvider();
+            }
 
             this.lastQuery = query;
 
@@ -372,22 +369,23 @@ public class ConfigWidgets implements WidgetManager
         else
             this.lastQuery = query;
 
-        RowProvider.DEFAULT.setPredicate(tweak -> {
-            if (tweak.isIgnored())
-                return false;
-
-            return tweak.getCategory().equals(this.configScreen.getCategory());
-        });
-
         this.rowList.clear();
 
         if (SearchTag.isInvalid(query))
             return;
 
-        this.findAndPopulateList(query);
+        if (RowProvider.get() != RowProvider.FAVORITE)
+            RowProvider.ALL.use();
 
-        if (this.rowList.getVisibleRows().isEmpty() && !RowProvider.ALL.isProviding() && query.length() > 1)
-            RowProvider.ALL.useAndThen(() -> this.findAndPopulateList(query));
+        this.findAndPopulateList(query);
+    }
+
+    /**
+     * Create tweak rows from the current search input without doing previous cache checks.
+     */
+    public void populateFromQuery()
+    {
+        this.populateFromSearch(this.getQuery());
     }
 
     /**
@@ -397,7 +395,7 @@ public class ConfigWidgets implements WidgetManager
     {
         for (Tweak<?> tweak : TweakDatabase.getInstance().findValues(query, 0.08D))
         {
-            if (RowProvider.get().test(tweak))
+            if (RowProvider.get().test(tweak) && this.categoryFilter.test(tweak.getCategory()))
                 this.rowList.addBottomRow(this.getSearchRow(tweak));
         }
     }
@@ -412,7 +410,19 @@ public class ConfigWidgets implements WidgetManager
             return;
 
         this.lastQuery = "";
-        this.populateFromSearch(this.getQuery());
+        this.populateFromQuery();
+    }
+
+    /**
+     * If there is a query, then clear the row list and reset the search results.
+     */
+    private void resetSearchResults()
+    {
+        if (this.getQuery().isEmpty())
+            return;
+
+        this.lastQuery = "";
+        this.populateFromQuery();
     }
 
     /**
@@ -651,7 +661,12 @@ public class ConfigWidgets implements WidgetManager
         if (this.search != null)
         {
             if (this.search.isFocused())
-                message = Lang.Listing.NOTHING_FOUND.get();
+            {
+                if (this.search.isProcessingInput())
+                    message = Lang.Listing.SEARCHING.get();
+                else
+                    message = Lang.Listing.NOTHING_FOUND.get();
+            }
 
             if (SearchTag.isInvalid(this.search.getInput()))
                 message = Lang.Input.INVALID_TAG.get(this.search.getInput());
@@ -792,6 +807,25 @@ public class ConfigWidgets implements WidgetManager
     }
 
     /**
+     * The filter button will display an overlay that allows filtering of the search results.
+     *
+     * @return A button wrapper instance.
+     */
+    private ButtonWidget createFilterButton()
+    {
+        return ButtonWidget.create(Lang.Button.FILTER)
+            .skipFocusOnClick()
+            .useTextWidth()
+            .padding(5)
+            .icon(Icons.FILTER)
+            .tooltip(Lang.Tooltip.FILTER_SEARCH, 500L, TimeUnit.MILLISECONDS)
+            .infoTooltip(Lang.Tooltip.FILTER_SEARCH_INFO, 45)
+            .rightOf(this.all, 1)
+            .onPress(() -> this.categoryFilter.open())
+            .build(this.configScreen::addWidget);
+    }
+
+    /**
      * Check if buttons need resized so that the search widget is not too small.
      */
     private void resizeSearch(GenericInput search)
@@ -801,28 +835,9 @@ public class ConfigWidgets implements WidgetManager
 
         this.favorite.shrink();
         this.all.shrink();
+        this.filter.shrink();
 
         search.getBuilder().sync();
-    }
-
-    /**
-     * Get an informative tooltip to add to the search button using current list context.
-     *
-     * @return A {@link Component} tooltip instance.
-     */
-    private Component getSearchTooltip()
-    {
-        if (!this.search.isHoveredOrFocused())
-            return Component.empty();
-
-        String searchingIn = ChatFormatting.YELLOW + switch (RowProvider.get())
-        {
-            case DEFAULT -> this.configScreen.getCategory().toString();
-            case FAVORITE -> Lang.Button.FAVORITE.getString();
-            case ALL -> Lang.Tooltip.EVERYWHERE.getString();
-        };
-
-        return Lang.Tooltip.SEARCHING.get().append(": ").append(searchingIn);
     }
 
     /**
@@ -837,13 +852,13 @@ public class ConfigWidgets implements WidgetManager
             .whenEmpty(Lang.Input.SEARCH)
             .background(Color.OLIVE_BLACK, Color.OLIVE_BLACK)
             .border(Color.BLACK, Color.WHITE)
+            .delayedResponse(350L)
             .maxLength(100)
             .searchShortcut()
-            .rightOf(this.all, 1)
+            .rightOf(this.filter, 1)
             .extendWidthTo(this.finish, 1)
-            .tooltip(this::getSearchTooltip, 45)
             .afterSync(this::resizeSearch)
-            .whenFocused(this::updateSearchResults)
+            .whenFocused(this::populateFromQuery)
             .onInput(this::populateFromSearch)
             .build(this.configScreen::addWidget);
     }
