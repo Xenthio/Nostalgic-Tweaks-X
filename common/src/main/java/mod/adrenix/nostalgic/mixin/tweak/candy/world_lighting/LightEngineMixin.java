@@ -45,26 +45,4 @@ public abstract class LightEngineMixin
 
         return lightValue;
     }
-
-    /**
-     * Returns a wrapped data layer with custom mod data to help simulate old light rendering.
-     */
-    @ModifyReturnValue(
-        method = "getDataLayerData",
-        at = @At("RETURN")
-    )
-    private DataLayer nt_world_lighting$getLightValue(@Nullable DataLayer original, SectionPos sectionPos)
-    {
-        // This breaks the functionality of some mods (Voxy, for example) so if we don't need the custom data layer, don't return it.
-        // TODO: Properly look into why this breaks these mods, instead of this stopgap fix.
-        if (GameUtil.isOnIntegratedSeverThread() || ClassUtil.isNotInstanceOf(this.chunkSource, ClientChunkCache.class) || original == null || !(CandyTweak.ROUND_ROBIN_RELIGHT.get() || CandyTweak.OLD_CLASSIC_ENGINE.get()))
-            return original;
-
-        boolean isSkyEngine = ClassUtil.isInstanceOf(this, SkyLightEngine.class);
-
-        if (this.chunkSource.getLevel() instanceof ClientLevel)
-            return new NostalgicDataLayer(original, isSkyEngine ? LightLayer.SKY : LightLayer.BLOCK, sectionPos.asLong());
-
-        return original;
-    }
 }
